@@ -14,13 +14,16 @@ import Lens.Micro.TH
 
 import Types.Location
 import Types.Alias
+import qualified Types.IxTable as I
+import Data.Coerce (coerce)
 
 ----------------------------------
 -- Types
 ----------------------------------
-type Production = ()
+newtype CityId = CityId Int
+    deriving (Show)
 
-type CityId = Int
+type Production = ()
 
 data City = City
     { _cityId :: CityId
@@ -28,6 +31,13 @@ data City = City
     , _productionQueue :: [Production]
     }
     deriving (Show)
+
+----------------------------------
+-- Instances
+----------------------------------
+instance I.Id CityId where
+    toInt = coerce
+    fromInt = CityId
 ----------------------------------
 -- Lenses
 ----------------------------------`
@@ -36,5 +46,5 @@ makeLenses ''City
 ----------------------------------
 -- Constructors
 ----------------------------------
-newCity :: Location -> Con City
+newCity :: Location -> Con CityId City
 newCity l cid = City cid l []

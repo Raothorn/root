@@ -4,6 +4,7 @@
 
 module Types.IxTable (
     IxTable,
+    Id(..),
     empty,
     insert,
     lookup,
@@ -19,6 +20,16 @@ import Prelude hiding (lookup)
 import Lens.Micro
 import Lens.Micro.GHC ()
 import Lens.Micro.TH
+
+import Types.Alias
+
+----------------------------------
+-- Typeclasses
+----------------------------------
+-- types that are isomorphic to integers
+class Id a where
+    toInt :: a -> Int
+    fromInt :: Int -> a
 
 ----------------------------------
 -- Types
@@ -45,11 +56,11 @@ empty = IxTable 0 M.empty
 ----------------------------------
 -- Insertion
 ----------------------------------
-insert :: (Int -> a) -> IxTable a -> (IxTable a, a)
+insert :: (Id i) => Con i a -> IxTable a -> (IxTable a, a)
 insert construct table = (table', val)
   where
     curCounter = table ^. counter
-    val = construct curCounter
+    val = construct (fromInt curCounter)
     entry = Entry False val
     contents' = M.insert curCounter entry (table ^. contents)
     table' = IxTable (curCounter + 1) contents'
@@ -57,26 +68,26 @@ insert construct table = (table', val)
 ----------------------------------
 -- Indexing
 ----------------------------------
-lookup :: Int -> IxTable a -> Maybe a
+lookup :: (Id i) => i -> IxTable a -> Maybe a
 lookup n table = do
-    entry <- M.lookup n (table ^. contents)
+    entry <- M.lookup (toInt n) (table ^. contents)
     if entry ^. isDeleted
         then Nothing
         else Just (entry ^. value)
 
 -- Lensy getter
-atTable :: Int -> SimpleGetter (IxTable a) (Maybe a)
+atTable :: (Id i) => i -> SimpleGetter (IxTable a) (Maybe a)
 atTable = to . lookup
 
 -- Traversal (for setting)
-ixTable :: Int -> Traversal' (IxTable a) a
-ixTable n = contents . ix n . value
+ixTable :: (Id i) => i -> Traversal' (IxTable a) a
+ixTable n = contents . ix (toInt n) . value
 
 ----------------------------------
 -- Deletion
 ----------------------------------
-delete :: Int -> IxTable a -> IxTable a
-delete n table = table & contents %~ M.adjust deleteEntry n
+delete :: (Id i) => i -> IxTable a -> IxTable a
+delete n table = table & contents %~ M.adjust deleteEntry (toInt n)
   where
     deleteEntry x = x & isDeleted .~ True
 

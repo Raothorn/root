@@ -20,7 +20,6 @@ import ExecAction
 import Types
 import qualified Types.City as C
 import qualified Types.Game as G
-import qualified Types.IxTable as I
 import qualified Types.Location as L
 import qualified Types.Unit as U
 

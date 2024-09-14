@@ -76,15 +76,15 @@ getCity = getIxEntry CityLookupError cities
 ----------------------------------
 -- General
 ----------------------------------
-addIxEntry :: Lens' Game (IxTable a) -> Con a -> Update Game a
+addIxEntry :: (Id i) => Lens' Game (IxTable a) -> Con i a -> Update Game a
 addIxEntry l con = do
     table <- use l
     let (table', x) = I.insert con table
     l .= table'
     return x
 
-getIxEntry :: Error -> Lens' Game (IxTable a) -> Int -> Update Game a
+getIxEntry :: (Id i) =>  Error -> Lens' Game (IxTable a) -> i -> Update Game a
 getIxEntry err l entryId = useEither err $ l . atTable entryId
 
-deleteIxEntry :: Lens' Game (IxTable a) -> Int -> Update Game ()
+deleteIxEntry :: (Id i) => Lens' Game (IxTable a) -> i -> Update Game ()
 deleteIxEntry l entryId = l %= I.delete entryId

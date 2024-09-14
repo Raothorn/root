@@ -15,16 +15,20 @@ module Types.Unit (
     unitId,
 ) where
 
+import Data.Coerce
+
 import Lens.Micro
 import Lens.Micro.TH
 
 import Types.Alias
 import qualified Types.Location as L
+import qualified Types.IxTable as I
 
 ----------------------------------
 -- Types
 ----------------------------------
-type UnitId = Int
+newtype UnitId = UnitId Int
+    deriving (Show)
 
 data UnitClass = Settler
     deriving (Show)
@@ -41,6 +45,13 @@ data Unit = Unit
     deriving (Show)
 
 ----------------------------------
+-- Instances
+----------------------------------
+instance I.Id UnitId where
+  toInt = coerce
+  fromInt = UnitId
+
+----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''Unit
@@ -51,7 +62,7 @@ makeLenses ''Unit
 newUnit ::
     UnitClass ->
     L.Location ->
-    Con Unit
+    Con UnitId Unit
 newUnit utype uloc uid = Unit uid utype uloc
 
 ----------------------------------
