@@ -27,8 +27,11 @@ dependencies:
 - microlens-platform
 - microlens-th
 - microlens-mtl
+- microlens-ghc
 - vty
 - vty-unix
+- tasty
+- tasty-hunit
 
 ghc-options:
 - -Wall

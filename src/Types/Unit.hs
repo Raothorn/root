@@ -2,41 +2,61 @@
 module Types.Unit (
     Unit,
     UnitAction(..),
+    UnitClass(..),
+    UnitId,
+    -- Constructors
     newUnit,
+    -- Helpers
+    availableActions,
     -- Lenses
     location,
+    unitId,
 ) where
 
+import Lens.Micro
 import Lens.Micro.TH
 
-import Types.Location
+import Types.Alias
+import qualified Types.Location as L
 
 ----------------------------------
 -- Types
 ----------------------------------
 data UnitClass = Settler
 
-data UnitAction 
+data UnitAction
     = BuildCity
 
 data Unit = Unit
-    { _unitClass :: UnitClass
-    , _location :: Location
+    { _unitId:: Int
+    , _unitType :: UnitClass
+    , _location :: L.Location
     }
-
-----------------------------------
--- Constructors
-----------------------------------
-newUnit :: Unit
-newUnit = Unit Settler (Location (0, 0))
-
-----------------------------------
--- Helpers
-----------------------------------
-unitActions :: UnitClass -> [UnitAction]
-unitActions Settler = [BuildCity]
 
 ----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''Unit
+
+----------------------------------
+-- Constructors
+----------------------------------
+newUnit ::
+    UnitClass ->
+    L.Location ->
+    Con Unit
+newUnit utype uloc uid = Unit uid utype uloc
+
+----------------------------------
+-- Helpers
+----------------------------------
+-- TODO refactor as "actionAvaialabe Unit -> UnitAction -> Bool"
+availableActions :: Unit -> [UnitAction]
+availableActions unit =
+    case unit ^. unitType of
+        Settler -> [BuildCity]
+
+----------------------------------
+-- Aliases
+----------------------------------
+type UnitId = Int

@@ -1,29 +1,44 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Monoid law, left identity" #-}
 module Ui.View (
     showGame,
 ) where
 
 import Lens.Micro
 
-import Graphics.Vty
+import Graphics.Vty hiding (char, string)
+import qualified Graphics.Vty as V
 
 import Types
+import qualified Types.Game as G
+import qualified Types.IxTable as I
+import qualified Types.Location as L
+import qualified Types.Unit as U
 
-showGame :: Game -> Picture
+showGame :: Game -> V.Picture
 showGame game =
-    picForLayers $
+    V.picForLayers $ reverse $
         mempty
-            ++ [unitView]
-            ++ citiesView
-            ++ [bgView]
-  where
-    (gameWidth, gameHeight) = (50, 25) :: (Int, Int)
+            <> pure showBg
+            <> showCities game
+            <> showUnits game
 
-    bgView = charFill defAttr '.' gameWidth gameHeight
-    unitLoc = game ^. unit . location
-    unitView = translate (unitLoc ^. x) (unitLoc ^. y) (char defAttr '@')
-    citiesView = showCities game
+showEntity :: Char -> Location -> Image
+showEntity char loc = translate (loc ^. L.x) (loc ^. L.y) entityView
+  where
+    entityView = V.char defAttr char
+
+showBg :: Image
+showBg = charFill defAttr '.' w h
+  where
+    (w, h) = (50, 25) :: (Int, Int)
+
+showUnits :: Game -> [Image]
+showUnits game = map (showEntity '@') unitLocs
+  where
+    unitLocs = game ^. G.units . to I.values ^.. each . U.location
 
 showCities :: Game -> [Image]
-showCities game = map showCity (game ^. cities)
-  where
-    showCity city = translate (city ^. x) (city ^. y) (char defAttr 'C')
+showCities game = map (showEntity 'C') cityLocs
+    where 
+        cityLocs = game ^. G.cities ^.. each

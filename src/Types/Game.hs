@@ -5,21 +5,61 @@ module Types.Game (
     Game,
     newGame,
     -- Lenses
-    unit,
+    units,
     cities,
+    -- Stateful functions
+    getUnit,
+    deleteUnit,
+    addUnit
 ) where
 
 import Lens.Micro.TH
+import Lens.Micro.Mtl
 
+import Types.Alias
 import Types.City
+import Types.Error
+import Types.IxTable as I
 import Types.Unit
+import Util
 
+----------------------------------
+-- Type
+----------------------------------
 data Game = Game
     { _cities :: [City]
-    , _unit :: Unit
+    , _units :: IxTable Unit
     }
 
+----------------------------------
+-- Constructor
+----------------------------------
 newGame :: Game
-newGame = Game [] newUnit
+newGame = Game [] I.empty
 
+----------------------------------
+-- Lenses
+----------------------------------
 makeLenses ''Game
+
+----------------------------------
+-- Stateful Functions
+----------------------------------
+getUnit :: UnitId -> Update Game Unit
+getUnit uid = useEither LookupError $ units . atTable uid
+
+deleteUnit :: UnitId -> Update Game ()
+deleteUnit uid = units %= I.delete uid
+
+addUnit :: Con Unit -> Update Game Unit
+addUnit conUnit = do
+    unitTable <- use units
+    let (unitTable', unit) = I.insert conUnit unitTable
+    units .= unitTable'
+    return unit
+
+
+
+
+
+

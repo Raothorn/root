@@ -9,8 +9,8 @@ import Types.Unit
 data Action
     = NoAction
     | QuitAction
-    | MoveUnit Direction
-    | UnitAction UnitAction
+    | MoveUnit UnitId Direction
+    | UnitAction UnitId UnitAction
 
 isQuit :: Action -> Bool
 isQuit QuitAction = True

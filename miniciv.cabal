@@ -27,6 +27,7 @@ library
   exposed-modules:
       ExecAction
       Lib
+      Test.ActionTest
       Types
       Types.Action
       Types.Alias
@@ -39,6 +40,7 @@ library
       Ui.Event
       Ui.MinicivApp
       Ui.View
+      Util
       Util.MapUtil
   other-modules:
       Paths_miniciv
@@ -51,9 +53,12 @@ library
       base >=4.7 && <5
     , containers
     , microlens
+    , microlens-ghc
     , microlens-mtl
     , microlens-platform
     , microlens-th
+    , tasty
+    , tasty-hunit
     , transformers
     , vty
     , vty-unix
@@ -72,10 +77,13 @@ executable miniciv-exe
       base >=4.7 && <5
     , containers
     , microlens
+    , microlens-ghc
     , microlens-mtl
     , microlens-platform
     , microlens-th
     , miniciv
+    , tasty
+    , tasty-hunit
     , transformers
     , vty
     , vty-unix
@@ -95,10 +103,13 @@ test-suite miniciv-test
       base >=4.7 && <5
     , containers
     , microlens
+    , microlens-ghc
     , microlens-mtl
     , microlens-platform
     , microlens-th
     , miniciv
+    , tasty
+    , tasty-hunit
     , transformers
     , vty
     , vty-unix

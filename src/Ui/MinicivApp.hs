@@ -9,14 +9,16 @@ import Graphics.Vty
 import Graphics.Vty.Platform.Unix (mkVty)
 
 import ExecAction
-import Types
 import Ui.Event
 import Ui.View
+
+import Types
+import qualified Types.Game as G
 
 runApp :: IO ()
 runApp = do
     vty <- mkVty defaultConfig
-    let game = newGame
+    let game = G.newGame
     updateApp vty game
     shutdown vty
 

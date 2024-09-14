@@ -1,12 +1,23 @@
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module Types.IxTable (
     IxTable,
     empty,
     insert,
-    lookup
+    lookup,
+    atTable,
+    ixTable,
+    delete,
+    values,
 ) where
 
-import Prelude hiding (lookup)
 import qualified Data.Map as M
+import Prelude hiding (lookup)
+
+import Lens.Micro
+import Lens.Micro.GHC ()
+import Lens.Micro.TH
 
 ----------------------------------
 -- Types
@@ -16,10 +27,13 @@ data Entry a = Entry
     , _value :: a
     }
 
-data IxTable a = IxTable 
+data IxTable a = IxTable
     { _counter :: Int
     , _contents :: M.Map Int (Entry a)
     }
+
+makeLenses ''IxTable
+makeLenses ''Entry
 
 ----------------------------------
 -- Constructors
@@ -31,28 +45,48 @@ empty = IxTable 0 M.empty
 -- Insertion
 ----------------------------------
 insert :: (Int -> a) -> IxTable a -> (IxTable a, a)
-insert construct table = (table', value)
-    where 
-        counter = _counter table
-        value = construct counter
-        entry = Entry False value
-        contents' = M.insert counter entry (_contents table)
-        table' = IxTable (counter + 1) contents'
+insert construct table = (table', val)
+  where
+    curCounter = table ^. counter
+    val = construct curCounter
+    entry = Entry False val
+    contents' = M.insert curCounter entry (table ^. contents)
+    table' = IxTable (curCounter + 1) contents'
 
 ----------------------------------
 -- Indexing
 ----------------------------------
 lookup :: Int -> IxTable a -> Maybe a
-lookup n = fmap _value . M.lookup n . _contents
+lookup n table = do
+    entry <- M.lookup n (table ^. contents)
+    if entry ^. isDeleted
+        then Just (entry ^. value)
+        else Nothing
+
+-- Lensy getter
+atTable :: Int -> SimpleGetter (IxTable a) (Maybe a)
+atTable = to . lookup
+
+-- Traversal (for setting)
+ixTable :: Int -> Traversal' (IxTable a) a
+ixTable n = contents . ix n . value
 
 ----------------------------------
 -- Deletion
 ----------------------------------
 delete :: Int -> IxTable a -> IxTable a
-delete n table = table { _contents = contents' } 
-    where 
-        deleteEntry x = x { _isDeleted = True }
-        contents = _contents table     
-        contents' = M.adjust deleteEntry n contents 
+delete n table = table & contents %~ M.adjust deleteEntry n
+  where
+    deleteEntry x = x & isDeleted .~ True
 
+----------------------------------
+-- Transformations
+----------------------------------
+values :: IxTable a -> [a]
+values = map _value . M.elems . _contents
 
+----------------------------------
+-- Instances
+----------------------------------
+instance Foldable IxTable where
+    foldr f x table = foldr f x (values table)
