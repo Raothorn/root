@@ -33,6 +33,7 @@ library
       Types.Game
       Types.Location
       Types.Unit
+      Ui.MinicivApp
       Ui.View
       Util.MapUtil
   other-modules:
