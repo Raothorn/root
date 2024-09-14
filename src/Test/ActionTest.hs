@@ -18,9 +18,9 @@ import Test.Tasty.HUnit
 
 import ExecAction
 import Types
-import qualified Types.IxTable as I
 import qualified Types.City as C
 import qualified Types.Game as G
+import qualified Types.IxTable as I
 import qualified Types.Location as L
 import qualified Types.Unit as U
 
@@ -36,7 +36,8 @@ type ActionTest = Game -> M ()
 ----------------------------------
 runActionTests :: TestTree
 runActionTests =
-    testGroup "action tests"
+    testGroup
+        "action tests"
         [ runTest "Move Unit" testMoveUnit
         , runTest "Build City" testBuildCity
         ]
@@ -91,7 +92,6 @@ testBuildCity game = do
 expect :: Game -> Update Game a -> M (Game, a)
 expect game f = do
     let result = runStateT f game
-
     case result of
         Left err -> do
             lift $ assertString $ "Expected a valid result, but got an error: " <> show err
@@ -122,7 +122,6 @@ nothing = mzero
 ----------------------------------
 addUnitAtOrigin :: UnitClass -> Game -> M (Game, Unit)
 addUnitAtOrigin uclass game = do
-    -- TODO parameterize unit type
     let conUnit = U.newUnit uclass L.origin
     expect game (G.addIxEntry G.units conUnit)
 
