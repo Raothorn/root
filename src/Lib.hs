@@ -2,5 +2,7 @@ module Lib
     ( someFunc
     ) where
 
+import Ui.View
+
 someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+someFunc = runApp

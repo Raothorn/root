@@ -26,6 +26,8 @@ dependencies:
 - microlens-platform
 - microlens-th
 - microlens-mtl
+- vty
+- vty-unix
 
 ghc-options:
 - -Wall

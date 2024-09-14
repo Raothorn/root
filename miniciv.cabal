@@ -33,6 +33,7 @@ library
       Types.Game
       Types.Location
       Types.Unit
+      Ui.View
       Util.MapUtil
   other-modules:
       Paths_miniciv
@@ -48,6 +49,8 @@ library
     , microlens-platform
     , microlens-th
     , transformers
+    , vty
+    , vty-unix
   default-language: Haskell2010
 
 executable miniciv-exe
@@ -67,6 +70,8 @@ executable miniciv-exe
     , microlens-th
     , miniciv
     , transformers
+    , vty
+    , vty-unix
   default-language: Haskell2010
 
 test-suite miniciv-test
@@ -87,4 +92,6 @@ test-suite miniciv-test
     , microlens-th
     , miniciv
     , transformers
+    , vty
+    , vty-unix
   default-language: Haskell2010
