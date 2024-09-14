@@ -30,6 +30,7 @@ data Game = Game
     { _cities :: [City]
     , _units :: IxTable Unit
     }
+    deriving (Show)
 
 ----------------------------------
 -- Constructor

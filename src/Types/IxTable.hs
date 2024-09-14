@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Types.IxTable (
     IxTable,
@@ -60,8 +61,8 @@ lookup :: Int -> IxTable a -> Maybe a
 lookup n table = do
     entry <- M.lookup n (table ^. contents)
     if entry ^. isDeleted
-        then Just (entry ^. value)
-        else Nothing
+        then Nothing
+        else Just (entry ^. value)
 
 -- Lensy getter
 atTable :: Int -> SimpleGetter (IxTable a) (Maybe a)
@@ -90,3 +91,6 @@ values = map _value . M.elems . _contents
 ----------------------------------
 instance Foldable IxTable where
     foldr f x table = foldr f x (values table)
+
+instance (Show a) => Show (IxTable a) where
+    show table = show (values table)

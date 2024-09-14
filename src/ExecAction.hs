@@ -5,11 +5,10 @@ module ExecAction (
 import Lens.Micro
 import Lens.Micro.Mtl
 
-import Util.MapUtil
-
 import Types 
 import qualified Types.Game as G
 import qualified Types.Unit as U
+import qualified Types.Location as L
 
 ----------------------------------
 -- ExecAction
@@ -19,7 +18,7 @@ execAction :: Action -> Update Game ()
 -- MoveAction
 ----------------------------------
 execAction (MoveUnit uid direction) =
-    G.units . ixTable uid . U.location %= adjacentLocation direction
+    G.units . ixTable uid . U.location %= L.adjacentLocation direction
 ----------------------------------
 -- UnitAction
 ----------------------------------

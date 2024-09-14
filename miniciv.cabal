@@ -41,7 +41,6 @@ library
       Ui.MinicivApp
       Ui.View
       Util
-      Util.MapUtil
   other-modules:
       Paths_miniciv
   autogen-modules:

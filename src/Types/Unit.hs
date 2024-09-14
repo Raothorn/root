@@ -23,6 +23,7 @@ import qualified Types.Location as L
 -- Types
 ----------------------------------
 data UnitClass = Settler
+    deriving (Show)
 
 data UnitAction
     = BuildCity
@@ -32,6 +33,7 @@ data Unit = Unit
     , _unitType :: UnitClass
     , _location :: L.Location
     }
+    deriving (Show)
 
 ----------------------------------
 -- Lenses
