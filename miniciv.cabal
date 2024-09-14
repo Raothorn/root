@@ -37,6 +37,7 @@ library
       Types.GameMap
       Types.IxTable
       Types.Location
+      Types.Production
       Types.Unit
       Ui.Event
       Ui.MinicivApp
@@ -57,6 +58,7 @@ library
     , microlens-mtl
     , microlens-platform
     , microlens-th
+    , monad-loops
     , tasty
     , tasty-hunit
     , transformers
@@ -82,6 +84,7 @@ executable miniciv-exe
     , microlens-platform
     , microlens-th
     , miniciv
+    , monad-loops
     , tasty
     , tasty-hunit
     , transformers
@@ -108,6 +111,7 @@ test-suite miniciv-test
     , microlens-platform
     , microlens-th
     , miniciv
+    , monad-loops
     , tasty
     , tasty-hunit
     , transformers

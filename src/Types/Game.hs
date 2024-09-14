@@ -1,5 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TupleSections #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use tuple-section" #-}
+{-# HLINT ignore "Use <$>" #-}
 
 module Types.Game (
     -- Type
@@ -9,6 +13,7 @@ module Types.Game (
     units,
     cities,
     -- Stateful functions
+    advanceTurn,
     getUnit,
     getCity,
     inMapBounds,
@@ -16,18 +21,23 @@ module Types.Game (
     deleteIxEntry
 ) where
 
+import Control.Monad
+import Control.Monad.Trans.State.Lazy
+import Data.Maybe
+
 import Lens.Micro
 import Lens.Micro.Mtl
 import Lens.Micro.TH
 
 import Types.Alias
-import Types.City
+import Types.City as C
 import Types.Error
 import Types.GameMap
 import Types.IxTable as I
 import qualified Types.Location as L
 import Types.Unit
 import Util
+import Types.Production
 
 ----------------------------------
 -- Type
@@ -53,6 +63,23 @@ makeLenses ''Game
 ----------------------------------
 -- Stateful Functions
 ----------------------------------
+advanceTurn :: Update Game ()
+advanceTurn = do
+    productions <- zoom (cities.traversed) $ do
+        loc <- use C.location
+        ptype <- updateProductionQueue 
+        let result = fmap (\p -> (loc, p)) ptype
+        return $ maybeToList result
+
+    forM_ productions $ uncurry produce
+
+produce :: L.Location -> ProductionType -> Update Game ()
+produce loc ptype = do
+    case ptype of
+        UnitProduction -> do
+            let unitCon = newUnit Settler loc
+            void $ addIxEntry units unitCon
+
 ----------------------------------
 -- Unit
 ----------------------------------
@@ -73,6 +100,7 @@ inMapBounds l = do
 ----------------------------------
 getCity :: CityId -> Update Game City
 getCity = getIxEntry CityLookupError cities
+
 ----------------------------------
 -- General
 ----------------------------------

@@ -3,6 +3,7 @@
 module Util (
     useEither,
     liftErr,
+    liftMaybe,
     ifM,
 ) where
 
@@ -25,7 +26,16 @@ useEither err l = do
 liftErr :: Error -> StateT s (Either Error) a
 liftErr = lift . Left
 
+liftMaybe :: Maybe a -> StateT s (Either Error) a
+liftMaybe x = do 
+    let eitherX  = maybeToEither Error x
+    lift eitherX
+
+maybeToEither :: b -> Maybe a -> Either b a
+maybeToEither err = maybe (Left err) Right
+
 ifM :: (Monad m) => m Bool -> m () -> m ()
 ifM predicate f = do
     result <- predicate
     when result f
+

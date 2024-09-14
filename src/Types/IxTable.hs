@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE InstanceSigs #-}
@@ -38,11 +39,34 @@ data Entry a = Entry
     { _isDeleted :: Bool
     , _value :: a
     }
+    deriving (Traversable)
 
 data IxTable a = IxTable
     { _counter :: Int
     , _contents :: M.Map Int (Entry a)
     }
+    deriving (Traversable)
+
+----------------------------------
+-- Instances
+----------------------------------
+instance Functor Entry where
+    fmap f entry = entry { _value = f (_value entry)}
+
+instance Foldable Entry where
+    foldr f x entry = f (_value entry) x
+
+instance Functor IxTable where
+    fmap f table = table { _contents = contents' }
+        where 
+            contents' = fmap (fmap f) (_contents table)
+
+instance Foldable IxTable where
+    foldr f x table = foldr f x (map _value $ M.elems (_contents table))
+
+
+instance (Show a) => Show (IxTable a) where
+    show table = show (map _value $ M.elems (_contents table))
 
 makeLenses ''IxTable
 makeLenses ''Entry
@@ -97,11 +121,3 @@ delete n table = table & contents %~ M.adjust deleteEntry (toInt n)
 values :: IxTable a -> [a]
 values = map _value . M.elems . _contents
 
-----------------------------------
--- Instances
-----------------------------------
-instance Foldable IxTable where
-    foldr f x table = foldr f x (values table)
-
-instance (Show a) => Show (IxTable a) where
-    show table = show (values table)

@@ -3,6 +3,8 @@ module Types.Action (
     isQuit,
 ) where
 
+import Types.City
+import Types.Production
 import Types.Location
 import Types.Unit
 
@@ -11,6 +13,7 @@ data Action
     | QuitAction
     | MoveUnit UnitId Direction
     | UnitAction UnitId UnitAction
+    | QueueProduction CityId ProductionType
 
 isQuit :: Action -> Bool
 isQuit QuitAction = True
