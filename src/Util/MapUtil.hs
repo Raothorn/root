@@ -2,7 +2,7 @@ module Util.MapUtil (
     adjacentLocation
 ) where
 
-import Types
+import Types (Direction(..), Location(..)) 
 
 adjacentLocation :: Direction -> Location -> Location
 adjacentLocation N (Location (x, y)) = Location (x, y - 1)

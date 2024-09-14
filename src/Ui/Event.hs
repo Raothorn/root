@@ -16,6 +16,12 @@ eventAction (EvKey KLeft _) = MoveUnit W
 eventAction (EvKey KRight _) = MoveUnit E
 
 ----------------------------------
+-- Temp
+----------------------------------
+eventAction (EvKey (KChar ' ') _) = UnitAction BuildCity
+
+
+----------------------------------
 -- Quit
 ----------------------------------
 eventAction (EvKey (KChar 'q') _) = QuitAction

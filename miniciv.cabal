@@ -30,6 +30,7 @@ library
       Types
       Types.Action
       Types.Alias
+      Types.City
       Types.Error
       Types.Game
       Types.Location
