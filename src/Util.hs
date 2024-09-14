@@ -1,10 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
+
 module Util (
     useEither,
-    -- useEither',
     liftErr,
+    ifM,
 ) where
 
+import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State.Lazy
 
@@ -21,4 +23,9 @@ useEither err l = do
         Nothing -> liftErr err
 
 liftErr :: Error -> StateT s (Either Error) a
-liftErr =  lift . Left
+liftErr = lift . Left
+
+ifM :: (Monad m) => m Bool -> m () -> m ()
+ifM predicate f = do
+    result <- predicate
+    when result f

@@ -4,6 +4,8 @@ module Types.Error (
 
 data Error 
     = Error
-    | LookupError
-    deriving (Show)
+    | UnitLookupError
+    | MoveOutOfBoundsError
+    | CityLookupError
+    deriving (Show, Eq)
 

@@ -4,18 +4,18 @@ module Types.Location (
     -- lenses
     x, 
     y,
-    location,
     -- constructors
     origin,
     adjacentLocation
 ) where
 
 import Lens.Micro
+import Data.Coerce (coerce)
 
 ----------------------------------
 -- Types
 ----------------------------------
-newtype Location = Location { unLocation :: (Int, Int) }
+newtype Location = Location (Int, Int)
     deriving (Eq, Show)
 
 data Direction = N | S | E | W
@@ -25,14 +25,13 @@ data Direction = N | S | E | W
 ----------------------------------
 
 x :: Lens' Location Int
-x = location . _1
+x = _location . _1
 
 y :: Lens' Location Int 
-y = location . _2
+y = _location . _2
 
-location :: Lens' Location (Int, Int)
-location = lens unLocation (\_ b -> Location b)
-
+_location :: Lens' Location (Int, Int)
+_location = lens coerce (\_ b -> Location b)
 ----------------------------------
 -- Constructors
 ----------------------------------
@@ -40,7 +39,7 @@ origin :: Location
 origin = Location (0, 0)
 
 adjacentLocation :: Direction -> Location -> Location
-adjacentLocation N (Location (_x, _y)) = Location (_x, _y - 1)
-adjacentLocation S (Location (_x, _y)) = Location (_x, _y + 1)
-adjacentLocation W (Location (_x, _y)) = Location (_x - 1, _y)
-adjacentLocation E (Location (_x, _y)) = Location (_x + 1, _y)
+adjacentLocation N = y -~ 1
+adjacentLocation S = y +~ 1
+adjacentLocation W = x -~ 1
+adjacentLocation E = x +~ 1

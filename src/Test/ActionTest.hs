@@ -18,6 +18,8 @@ import Test.Tasty.HUnit
 
 import ExecAction
 import Types
+import qualified Types.IxTable as I
+import qualified Types.City as C
 import qualified Types.Game as G
 import qualified Types.Location as L
 import qualified Types.Unit as U
@@ -33,7 +35,11 @@ type ActionTest = Game -> M ()
 -- Framework
 ----------------------------------
 runActionTests :: TestTree
-runActionTests = runTest "Test Move Unit" testMoveUnit
+runActionTests =
+    testGroup "action tests"
+        [ runTest "Move Unit" testMoveUnit
+        , runTest "Build City" testBuildCity
+        ]
 
 runTest :: String -> ActionTest -> TestTree
 runTest name test = testCase name test'
@@ -48,16 +54,36 @@ runTest name test = testCase name test'
 testMoveUnit :: ActionTest
 testMoveUnit game = do
     -- Add a unit at (0, 0)
-    let conUnit = U.newUnit Settler L.origin
-    (game, unit) <- expect game (G.addUnit conUnit)
+    (game, unit) <- addUnitAtOrigin Settler game
+    let uid = unit ^. U.unitId
 
     -- Move the unit south
-    let action = MoveUnit (unit ^. U.unitId) S
+    let action = MoveUnit uid S
     game <- expect' game $ execAction action
-    unit <- eval game $ G.getUnit (unit ^. U.unitId)
+    unit <- eval game $ G.getUnit uid
 
     -- Check that the unit is now at (0, 1)
     lift $ assertUnitAtLocation (0, 1) unit
+
+    -- Try to move the unit west to (-1, 1). This should trigger an error
+    let action = MoveUnit uid W
+    expectErr MoveOutOfBoundsError game $ execAction action
+
+testBuildCity :: ActionTest
+testBuildCity game = do
+    -- Add a settler at (0, 0)
+    (game, unit) <- addUnitAtOrigin Settler game
+    let uid = unit ^. U.unitId
+
+    -- Build a city at the unit's location
+    let action = UnitAction uid BuildCity
+    game <- expect' game $ execAction action
+
+    -- Verify that there is a city at the origin
+    lift $ assertCityExistsAtLocation (0, 0) game
+
+    -- Verify that the unit no longer exists
+    expectErr UnitLookupError game (G.getUnit uid)
 
 ----------------------------------
 -- Helpers
@@ -79,10 +105,37 @@ expect' game f = expect game f <&> fst
 eval :: Game -> Update Game a -> M a
 eval game f = expect game f <&> snd
 
+expectErr :: Error -> Game -> Update Game a -> M ()
+expectErr expectedErr game f = do
+    let result = runStateT f game
+    case result of
+        Left err ->
+            lift $ assertEqual "Got an error, but not the right type" expectedErr err
+        Right _ ->
+            lift $ assertString "Expected an error, but got a valid result"
+
 nothing :: M a
 nothing = mzero
 
+----------------------------------
+-- Setup
+----------------------------------
+addUnitAtOrigin :: UnitClass -> Game -> M (Game, Unit)
+addUnitAtOrigin uclass game = do
+    -- TODO parameterize unit type
+    let conUnit = U.newUnit uclass L.origin
+    expect game (G.addIxEntry G.units conUnit)
+
+----------------------------------
+-- Assertions
+----------------------------------
 assertUnitAtLocation :: (Int, Int) -> Unit -> Assertion
 assertUnitAtLocation loc unit = assertEqual errStr (Location loc) (unit ^. U.location)
   where
     errStr = "The unit is not at the expected location"
+
+assertCityExistsAtLocation :: (Int, Int) -> Game -> Assertion
+assertCityExistsAtLocation loc game = assertBool errorStr exists
+  where
+    exists = any (\city -> city ^. C.location == Location loc) (game ^. G.cities)
+    errorStr = "There is no city at the given location"
