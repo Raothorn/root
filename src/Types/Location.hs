@@ -19,6 +19,7 @@ newtype Location = Location (Int, Int)
     deriving (Eq, Show)
 
 data Direction = N | S | E | W
+    deriving (Show)
 
 ----------------------------------
 -- Lenses

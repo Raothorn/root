@@ -14,6 +14,7 @@ data Action
     | MoveUnit UnitId Direction
     | UnitAction UnitId UnitAction
     | QueueProduction CityId ProductionType
+    deriving (Show)
 
 isQuit :: Action -> Bool
 isQuit QuitAction = True

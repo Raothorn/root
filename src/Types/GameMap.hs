@@ -50,5 +50,5 @@ inBounds :: Location -> GameMap -> Bool
 inBounds l gm = 
     l ^. x >= 0 &&
     l ^. y >= 0 && 
-    l ^. x <= gm ^. width &&
-    l ^. y <= gm ^. height
+    l ^. x < gm ^. width &&
+    l ^. y < gm ^. height

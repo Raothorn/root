@@ -1,13 +1,14 @@
 {-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE InstanceSigs #-}
 
 module Types.IxTable (
-    IxTable,
-    Id(..),
+    IxTable (),
+    Id (..),
     empty,
     insert,
+    insert',
     lookup,
     atTable,
     ixTable,
@@ -50,27 +51,28 @@ data IxTable a = IxTable
 ----------------------------------
 -- Instances
 ----------------------------------
+values :: IxTable a -> [a]
+values = map _value . filter (not . _isDeleted) . M.elems . _contents
+
 instance Functor Entry where
-    fmap f entry = entry { _value = f (_value entry)}
+    fmap f entry = entry{_value = f (_value entry)}
 
 instance Foldable Entry where
     foldr f x entry = f (_value entry) x
 
 instance Functor IxTable where
-    fmap f table = table { _contents = contents' }
-        where 
-            contents' = fmap (fmap f) (_contents table)
+    fmap f table = table{_contents = contents'}
+      where
+        contents' = fmap (fmap f) (_contents table)
 
 instance Foldable IxTable where
-    foldr f x table = foldr f x (map _value $ M.elems (_contents table))
-
+    foldr f x table = foldr f x (values table)
 
 instance (Show a) => Show (IxTable a) where
-    show table = show (map _value $ M.elems (_contents table))
+    show table = show $ values table
 
 makeLenses ''IxTable
 makeLenses ''Entry
-
 ----------------------------------
 -- Constructors
 ----------------------------------
@@ -89,6 +91,8 @@ insert construct table = (table', val)
     contents' = M.insert curCounter entry (table ^. contents)
     table' = IxTable (curCounter + 1) contents'
 
+insert' :: (Id i) => Con i a -> IxTable a -> IxTable a
+insert' c t = fst $ insert c t
 ----------------------------------
 -- Indexing
 ----------------------------------
@@ -104,6 +108,7 @@ atTable :: (Id i) => i -> SimpleGetter (IxTable a) (Maybe a)
 atTable = to . lookup
 
 -- Traversal (for setting)
+-- TODO check for deleted
 ixTable :: (Id i) => i -> Traversal' (IxTable a) a
 ixTable n = contents . ix (toInt n) . value
 
@@ -114,10 +119,3 @@ delete :: (Id i) => i -> IxTable a -> IxTable a
 delete n table = table & contents %~ M.adjust deleteEntry (toInt n)
   where
     deleteEntry x = x & isDeleted .~ True
-
-----------------------------------
--- Transformations
-----------------------------------
-values :: IxTable a -> [a]
-values = map _value . M.elems . _contents
-

@@ -8,13 +8,13 @@ import Lens.Micro
 import Lens.Micro.Mtl
 
 import Types
+import Types.City (queueProduction)
 import qualified Types.City as C
 import qualified Types.Game as G
+import Types.IxTable
 import qualified Types.Location as L
-import qualified Types.Production as P
 import qualified Types.Unit as U
 import Util
-import Types.City (queueProduction)
 
 ----------------------------------
 -- ExecAction

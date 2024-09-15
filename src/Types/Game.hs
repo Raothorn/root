@@ -15,6 +15,7 @@ module Types.Game (
     -- Stateful functions
     advanceTurn,
     getUnit,
+    getIdleUnit,
     getCity,
     inMapBounds,
     addIxEntry,
@@ -35,7 +36,7 @@ import Types.Error
 import Types.GameMap
 import Types.IxTable as I
 import qualified Types.Location as L
-import Types.Unit
+import Types.Unit as U
 import Util
 import Types.Production
 
@@ -87,6 +88,10 @@ produce loc ptype = do
 -- decide what error to use
 getUnit :: UnitId -> Update Game Unit
 getUnit = getIxEntry UnitLookupError units
+
+getIdleUnit :: Update Game (Maybe UnitId)
+getIdleUnit = preuse $ units . to values . _head . U.unitId
+
 ----------------------------------
 -- Map
 ----------------------------------

@@ -21,21 +21,21 @@ import Lens.Micro
 import Lens.Micro.TH
 
 import Types.Alias
-import qualified Types.Location as L
+import Types.Location as L
 import qualified Types.IxTable as I
 
 ----------------------------------
 -- Types
 ----------------------------------
 newtype UnitId = UnitId Int
-    deriving (Show)
+    deriving (Show, Eq)
 
 data UnitClass = Settler
     deriving (Show)
 
 data UnitAction
     = BuildCity
-    deriving (Eq)
+    deriving (Show, Eq)
 
 data Unit = Unit
     { _unitId :: UnitId
