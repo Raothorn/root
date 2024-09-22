@@ -1,10 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Types.Clearing (
-    --Type
+    -- Type
     Clearing,
     -- Constructor
     -- Lenses
-    suit
+    suit,
 ) where
 
 import Lens.Micro.TH

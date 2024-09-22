@@ -1,5 +1,5 @@
 module Types.Common (
-    Suit(..),
+    Suit (..),
     Card,
 ) where
 
@@ -8,4 +8,5 @@ module Types.Common (
 
 data Suit = Mouse | Fox | Rabbit | Bird
     deriving (Show)
+
 type Card = Suit
