@@ -32,7 +32,7 @@ class Indexed a where
 type ConIx a = Index a -> a
 
 newtype Index a = Index Int
-    deriving (Show, Eq, Ord)
+    deriving (Eq, Ord)
 
 ----------------------------------
 -- Types

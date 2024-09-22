@@ -2,9 +2,8 @@ module Types.Faction.Common (
     FactionCommon,
 ) where
 
-import Types.Common
+import Types.Card
 
 newtype FactionCommon = FactionCommon
-    { _cards :: [Card]
+    { _hand :: [Card]
     }
-    deriving (Show)

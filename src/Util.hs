@@ -11,11 +11,14 @@ module Util (
     addIxEntry,
     getIxEntry,
     deleteIxEntry,
+    -- List
+    bagDifference,
 ) where
 
 import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State.Lazy
+import qualified Data.MultiSet as MS
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -70,3 +73,12 @@ getIxEntry err l entryId = useEither err $ l . atTable entryId
 
 deleteIxEntry :: Lens' s (IxTable a) -> Index a -> Update s ()
 deleteIxEntry l entryId = l %= I.delete entryId
+
+----------------------------------
+-- List Utilities
+----------------------------------
+bagDifference :: (Ord a) => [a] -> [a] -> [a]
+bagDifference items removeItems = MS.toList (MS.difference items' removeItems')
+  where
+    items' = MS.fromList items
+    removeItems' = MS.fromList removeItems

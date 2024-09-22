@@ -1,6 +1,7 @@
 module Types.Phase (
+    -- Types
     Phase (..),
-    DayPhase (..)
+    DayPhase (..),
 ) where
 
 import Types.Faction
@@ -12,9 +13,12 @@ data Phase
     = MarquisPhase CatPhase
     | EeriePhase BirdPhase
     | NoPhase
-    deriving (Show)
 
 data DayPhase = Birdsong | Morning | Evening
+
+----------------------------------
+-- Instances
+----------------------------------
 
 ----------------------------------
 -- Helpers

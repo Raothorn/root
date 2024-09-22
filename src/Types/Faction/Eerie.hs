@@ -11,7 +11,7 @@ module Types.Faction.Eerie (
 
 import Lens.Micro.TH
 
-import Types.Common
+import Types.Card
 import Types.Faction.Common
 
 ----------------------------------
@@ -36,7 +36,6 @@ data BirdPhase
     | BirdCraftPhase
     | BirdResolveDecreePhase
     | BirdSecondDrawPhase
-    deriving (Show)
 
 data BirdAction
     = BirdDraw
@@ -45,7 +44,6 @@ data BirdAction
     | BirdCraft
     | BirdTakeDecreeAction
     | BirdDrawAndDiscard
-    deriving (Show)
 
 ----------------------------------
 -- Lenses

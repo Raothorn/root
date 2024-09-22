@@ -12,12 +12,9 @@ import Types.Faction.Marquis
 -- Types
 ----------------------------------
 data Faction
-    = Marquis CatFaction
-    | Eerie BirdFaction
+    = Marquis
+    | Eerie
 
 data FactionAction
     = MarquisAction CatAction
     | EerieAction BirdAction
-    deriving (Show)
-
-

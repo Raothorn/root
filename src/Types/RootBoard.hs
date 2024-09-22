@@ -6,7 +6,7 @@ module Types.RootBoard (
     -- Lenses
     clearings,
     -- Stateful functions
-    getClearingsP
+    getClearingsP,
 ) where
 
 import Lens.Micro
@@ -15,9 +15,12 @@ import Lens.Micro.TH
 
 import Types.Alias
 import Types.Clearing (Clearing)
-import qualified Types.Clearing as Clearing
-import Types.IxTable as I
+import qualified Types.Clearing as Clr
 import Types.Common
+import Types.Error
+import Types.Faction
+import Types.IxTable as I
+import Util
 
 ----------------------------------
 -- Types
@@ -25,12 +28,12 @@ import Types.Common
 newtype RootBoard = RootBoard
     { _clearings :: IxTable Clearing
     }
-    deriving (Show)
 
 ----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''RootBoard
+
 ----------------------------------
 -- Stateful functions
 ----------------------------------

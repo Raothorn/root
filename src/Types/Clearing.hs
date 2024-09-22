@@ -36,7 +36,6 @@ data Clearing = Clearing
     , _buildings :: [Building]
     , _tokens :: [Token]
     }
-    deriving (Show)
 
 ----------------------------------
 -- Instances

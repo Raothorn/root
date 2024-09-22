@@ -28,12 +28,15 @@ library
       ExecAction
       ExecAction.CatAction
       Lib
+      Lookup.CardLookup
       Test.ActionTest
       Types
       Types.Action
       Types.Alias
+      Types.Card
       Types.Clearing
       Types.Common
+      Types.Default
       Types.Error
       Types.Faction
       Types.Faction.Common
@@ -62,6 +65,7 @@ library
     , microlens-platform
     , microlens-th
     , monad-loops
+    , multiset
     , tasty
     , tasty-hunit
     , transformers
@@ -88,6 +92,7 @@ executable miniciv-exe
     , microlens-th
     , miniciv
     , monad-loops
+    , multiset
     , tasty
     , tasty-hunit
     , transformers
@@ -115,6 +120,7 @@ test-suite miniciv-test
     , microlens-th
     , miniciv
     , monad-loops
+    , multiset
     , tasty
     , tasty-hunit
     , transformers

@@ -9,6 +9,7 @@ module Types.Game (
     phase,
     board,
     -- Constructor
+    newGame,
     --Stateful functions
     zoomClearing,
     zoomClearing',
@@ -35,18 +36,24 @@ data Game = Game
     { _gameLog :: [LogEvent]
     , _phase :: Phase
     , _board :: RootBoard
-    , _playerFactions :: CatFaction
+    , _playerFactions :: PlayerFactions
     }
-    deriving (Show)
+
+data PlayerFactions = PlayerFactions 
+    { _marquis :: Maybe CatFaction
+    }
 
 ----------------------------------
 -- Constructor
 ----------------------------------
+newGame :: Game 
+newGame = Game {}
 
 ----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''Game
+makeLenses ''PlayerFactions
 
 ----------------------------------
 -- Stateful Functions
@@ -57,5 +64,28 @@ zoomClearing i = zoom (board . clearings . ixTable i)
 zoomClearing' :: (Monoid a) => Clearing -> Update Clearing a -> Update Game a
 zoomClearing' = zoomClearing . getIx
 
-zoomCat :: Update CatFaction a -> Update Game a
-zoomCat = zoom playerFactions
+zoomCat :: (Monoid a) => Update CatFaction a -> Update Game a
+zoomCat = zoom (playerFactions . marquis . traversed)
+
+----------------------------------
+-- Helpers
+----------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
