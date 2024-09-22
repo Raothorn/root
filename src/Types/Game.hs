@@ -4,6 +4,7 @@
 module Types.Game (
     -- Type
     Game,
+    -- Constructor
     newGame
 ) where
 

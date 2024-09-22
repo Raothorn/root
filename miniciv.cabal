@@ -31,10 +31,13 @@ library
       Types
       Types.Action
       Types.Alias
+      Types.Clearing
+      Types.Common
       Types.Error
       Types.Game
       Types.GameMap
       Types.IxTable
+      Types.LogEvent
       Util
   other-modules:
       Paths_miniciv
