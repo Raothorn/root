@@ -1,19 +1,22 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Types.Clearing (
-    -- Type
+    -- Types
     Clearing,
     -- Constructor
     -- Lenses
     suit,
 ) where
 
+import Data.Coerce (coerce)
+
 import Lens.Micro.TH
 
+import Types
 import Types.Common
 
 ----------------------------------
--- Type
+-- Types
 ----------------------------------
 data Clearing = Clearing
     { _suit :: Suit
@@ -21,6 +24,11 @@ data Clearing = Clearing
     }
 
 type Slot = ()
+
+----------------------------------
+-- Instances
+----------------------------------
+
 ----------------------------------
 -- Lenses
 ----------------------------------

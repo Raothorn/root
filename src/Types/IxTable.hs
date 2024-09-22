@@ -1,11 +1,12 @@
-{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Types.IxTable (
     IxTable (),
-    Id (..),
+    Indexed (..),
+    ConIx,
+    Index,
     empty,
     insert,
     insert',
@@ -23,56 +24,33 @@ import Lens.Micro
 import Lens.Micro.GHC ()
 import Lens.Micro.TH
 
-import Types.Alias
-
 ----------------------------------
 -- Typeclasses
 ----------------------------------
--- types that are isomorphic to integers
-class Id a where
-    toInt :: a -> Int
-    fromInt :: Int -> a
+class Indexed a where
+    getIx :: a -> Index a
+
+type ConIx a = Index a -> a
+
+newtype Index a = Index Int
+    deriving (Show, Eq, Ord)
 
 ----------------------------------
 -- Types
 ----------------------------------
-data Entry a = Entry
-    { _isDeleted :: Bool
-    , _value :: a
-    }
-    deriving (Traversable)
-
 data IxTable a = IxTable
     { _counter :: Int
-    , _contents :: M.Map Int (Entry a)
+    , _contents :: M.Map (Index a) a
     }
-    deriving (Traversable)
 
 ----------------------------------
 -- Instances
 ----------------------------------
 values :: IxTable a -> [a]
-values = map _value . filter (not . _isDeleted) . M.elems . _contents
-
-instance Functor Entry where
-    fmap f entry = entry{_value = f (_value entry)}
-
-instance Foldable Entry where
-    foldr f x entry = f (_value entry) x
-
-instance Functor IxTable where
-    fmap f table = table{_contents = contents'}
-      where
-        contents' = fmap (fmap f) (_contents table)
-
-instance Foldable IxTable where
-    foldr f x table = foldr f x (values table)
-
-instance (Show a) => Show (IxTable a) where
-    show table = show $ values table
+values = M.elems . _contents
 
 makeLenses ''IxTable
-makeLenses ''Entry
+
 ----------------------------------
 -- Constructors
 ----------------------------------
@@ -82,40 +60,33 @@ empty = IxTable 0 M.empty
 ----------------------------------
 -- Insertion
 ----------------------------------
-insert :: (Id i) => Con i a -> IxTable a -> (IxTable a, a)
+insert :: ConIx a -> IxTable a -> (IxTable a, a)
 insert construct table = (table', val)
   where
-    curCounter = table ^. counter
-    val = construct (fromInt curCounter)
-    entry = Entry False val
-    contents' = M.insert curCounter entry (table ^. contents)
-    table' = IxTable (curCounter + 1) contents'
+    curCounter = Index (table ^. counter)
+    val = construct curCounter
+    contents' = M.insert curCounter val (table ^. contents)
+    table' = IxTable (table ^. counter + 1) contents'
 
-insert' :: (Id i) => Con i a -> IxTable a -> IxTable a
+insert' :: ConIx a -> IxTable a -> IxTable a
 insert' c t = fst $ insert c t
+
 ----------------------------------
 -- Indexing
 ----------------------------------
-lookup :: (Id i) => i -> IxTable a -> Maybe a
-lookup n table = do
-    entry <- M.lookup (toInt n) (table ^. contents)
-    if entry ^. isDeleted
-        then Nothing
-        else Just (entry ^. value)
+lookup :: Index a -> IxTable a -> Maybe a
+lookup i table = M.lookup i (table ^. contents)
 
 -- Lensy getter
-atTable :: (Id i) => i -> SimpleGetter (IxTable a) (Maybe a)
+atTable :: Index a -> SimpleGetter (IxTable a) (Maybe a)
 atTable = to . lookup
 
 -- Traversal (for setting)
--- TODO check for deleted
-ixTable :: (Id i) => i -> Traversal' (IxTable a) a
-ixTable n = contents . ix (toInt n) . value
+ixTable :: Index a -> Traversal' (IxTable a) a
+ixTable i = contents . ix i
 
 ----------------------------------
 -- Deletion
 ----------------------------------
-delete :: (Id i) => i -> IxTable a -> IxTable a
-delete n table = table & contents %~ M.adjust deleteEntry (toInt n)
-  where
-    deleteEntry x = x & isDeleted .~ True
+delete :: Index a -> IxTable a -> IxTable a
+delete x table = table & contents %~ M.delete x

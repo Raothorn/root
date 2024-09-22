@@ -9,3 +9,11 @@ import Types
 ----------------------------------
 execAction :: Action -> Update Game ()
 execAction _ = return ()
+
+----------------------------------
+-- ExecFactionAction
+----------------------------------
+execFactionAction :: FactionAction -> Update Game ()
+----------------------------------
+-- Marquis Actions
+----------------------------------

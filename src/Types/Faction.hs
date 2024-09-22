@@ -1,5 +1,6 @@
 module Types.Faction (
-    FactionAction
+    Faction(..),
+    FactionAction(..),
 ) where
 
 import Types.Faction.Marquis
