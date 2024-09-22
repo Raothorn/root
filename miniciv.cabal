@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ExecAction
+      ExecAction.CatAction
       Lib
       Test.ActionTest
       Types
@@ -42,6 +43,8 @@ library
       Types.GameMap
       Types.IxTable
       Types.LogEvent
+      Types.Phase
+      Types.RootBoard
       Util
   other-modules:
       Paths_miniciv

@@ -1,36 +1,23 @@
 module Types.Faction (
-    Faction(..),
-    FactionAction(..),
+    Faction (..),
+    FactionAction (..),
+    module Types.Faction.Eerie,
+    module Types.Faction.Marquis,
 ) where
 
-import Types.Faction.Marquis
 import Types.Faction.Eerie
+import Types.Faction.Marquis
+
 ----------------------------------
 -- Types
 ----------------------------------
-data Faction 
+data Faction
     = Marquis CatFaction
     | Eerie BirdFaction
 
-data Phase
-    = MarquisPhase CatPhase
-    | EeriePhase BirdPhase
-
-data FactionAction 
+data FactionAction
     = MarquisAction CatAction
-    | EerieAction
+    | EerieAction BirdAction
     deriving (Show)
 
-data BirdPhase
 
-data DayPhase = Birdsong | Morning | Evening
-
-----------------------------------
--- Helpers
-----------------------------------
--- Random functions that will need to be refiled eventually
-
--- Returns the time of day (Birdsong, Morning, Evening)
--- given the more granular "Phase"
-dayPhase :: Phase -> DayPhase
-dayPhase _ = Birdsong

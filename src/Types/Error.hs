@@ -4,5 +4,7 @@ module Types.Error (
 
 data Error 
     = Error
+    | NotImplemented
+    | NotFactionTurn
     deriving (Show, Eq)
 

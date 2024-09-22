@@ -1,7 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
-
 module Types.IxTable (
     IxTable (),
     Indexed (..),

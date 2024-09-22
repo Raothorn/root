@@ -6,7 +6,7 @@ module Util (
     liftErr,
     liftMaybe,
     -- Control
-    ifM,
+    whenM,
     -- IxTable
     addIxEntry,
     getIxEntry,
@@ -49,8 +49,8 @@ maybeToEither err = maybe (Left err) Right
 ----------------------------------
 -- Control Utilities
 ----------------------------------
-ifM :: (Monad m) => m Bool -> m () -> m ()
-ifM predicate f = do
+whenM :: (Monad m) => m Bool -> m () -> m ()
+whenM predicate f = do
     result <- predicate
     when result f
 

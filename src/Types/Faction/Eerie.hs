@@ -1,7 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Types.Faction.Eerie (
     -- Types
-    BirdFaction
+    BirdFaction,
+    BirdAction(..),
+    BirdPhase(..)
     -- Lenses
     -- Constructors
     -- Helpers
@@ -43,6 +45,7 @@ data BirdAction
     | BirdCraft
     | BirdTakeDecreeAction
     | BirdDrawAndDiscard
+    deriving (Show)
 
 ----------------------------------
 -- Lenses
