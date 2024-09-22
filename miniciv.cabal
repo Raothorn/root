@@ -31,21 +31,10 @@ library
       Types
       Types.Action
       Types.Alias
-      Types.City
       Types.Error
       Types.Game
       Types.GameMap
       Types.IxTable
-      Types.Location
-      Types.Production
-      Types.Unit
-      Ui.Event
-      Ui.MinicivApp
-      Ui.UiActions
-      Ui.UiTypes
-      Ui.View.AppView
-      Ui.View.GameView
-      Ui.VtyUtil
       Util
   other-modules:
       Paths_miniciv
