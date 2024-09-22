@@ -2,14 +2,10 @@ module Types.Action (
     Action(..),
 ) where
 
+import Types.Faction
 
 data Action
     = NoAction
-    | Common CommonAction
+    | Faction FactionAction
     deriving (Show)
 
-data CommonAction
-    = Battle
-    | Move
-    | Craft
-    deriving (Show)

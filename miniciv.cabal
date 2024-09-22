@@ -34,6 +34,10 @@ library
       Types.Clearing
       Types.Common
       Types.Error
+      Types.Faction
+      Types.Faction.Common
+      Types.Faction.Eerie
+      Types.Faction.Marquis
       Types.Game
       Types.GameMap
       Types.IxTable
