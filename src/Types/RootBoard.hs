@@ -15,12 +15,8 @@ import Lens.Micro.TH
 
 import Types.Alias
 import Types.Clearing (Clearing)
-import qualified Types.Clearing as Clr
-import Types.Common
-import Types.Error
-import Types.Faction
+import Types.Default
 import Types.IxTable as I
-import Util
 
 ----------------------------------
 -- Types
@@ -28,6 +24,15 @@ import Util
 newtype RootBoard = RootBoard
     { _clearings :: IxTable Clearing
     }
+
+----------------------------------
+-- Instances
+----------------------------------
+instance Default RootBoard where
+    def =
+        RootBoard
+            { _clearings = I.empty
+            }
 
 ----------------------------------
 -- Lenses

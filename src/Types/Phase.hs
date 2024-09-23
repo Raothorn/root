@@ -4,6 +4,7 @@ module Types.Phase (
     DayPhase (..),
 ) where
 
+import Types.Default
 import Types.Faction
 
 ----------------------------------
@@ -19,7 +20,8 @@ data DayPhase = Birdsong | Morning | Evening
 ----------------------------------
 -- Instances
 ----------------------------------
-
+instance Default Phase where
+  def = NoPhase
 ----------------------------------
 -- Helpers
 ----------------------------------

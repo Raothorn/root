@@ -12,7 +12,8 @@ module Types.Faction.Eerie (
 import Lens.Micro.TH
 
 import Types.Card
-import Types.Faction.Common
+import Types.Faction.FactionCommon
+import Types.Default
 
 ----------------------------------
 -- Types
@@ -44,6 +45,23 @@ data BirdAction
     | BirdCraft
     | BirdTakeDecreeAction
     | BirdDrawAndDiscard
+
+----------------------------------
+-- Instances
+----------------------------------
+instance Default BirdFaction where
+    def = BirdFaction
+        { _common = def
+        , _decree = def
+        }
+
+instance Default Decree where
+    def = Decree 
+        { _recruit = []
+        , _move = []
+        , _battle = []
+        , _build = []
+        }
 
 ----------------------------------
 -- Lenses

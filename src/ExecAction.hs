@@ -2,8 +2,6 @@ module ExecAction (
     execAction,
 ) where
 
-import Lens.Micro.Mtl
-
 import ExecAction.CatAction
 import Types
 import qualified Types.Game as Game
@@ -13,15 +11,17 @@ import Util
 -- ExecAction
 ----------------------------------
 execAction :: Action -> Update Game ()
-execAction _ = return ()
+execAction (Faction action) = execFactionAction action
+execAction NoAction = liftErr EmptyTypeEncountered
 
 ----------------------------------
 -- ExecFactionAction
 ----------------------------------
 execFactionAction :: FactionAction -> Update Game ()
 execFactionAction (MarquisAction action) = do
-    currentPhase <- use Game.phase
+    currentPhase <- Game.getPhase
     case currentPhase of
         MarquisPhase phase -> execCatAction phase action
         _ -> liftErr NotFactionTurn
-execFactionAction (EerieAction action) = liftErr NotImplemented
+execFactionAction (EerieAction _) = liftErr NotImplemented
+execFactionAction NoFactionAction = liftErr EmptyTypeEncountered

@@ -20,6 +20,7 @@ import Test.Tasty.HUnit
 import Types.Alias
 import Types.Error
 import Types.Game as G
+import Types.Default
 
 ----------------------------------
 -- Types
@@ -40,7 +41,7 @@ runActionTests =
 runTest :: String -> ActionTest -> TestTree
 runTest name test = testCase name test'
   where
-    game = G.newGame
+    game = def
     test' = void $ runMaybeT (test game)
 
 ----------------------------------

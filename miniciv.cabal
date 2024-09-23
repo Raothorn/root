@@ -35,12 +35,12 @@ library
       Types.Alias
       Types.Card
       Types.Clearing
-      Types.Common
+      Types.CommonTypes
       Types.Default
       Types.Error
       Types.Faction
-      Types.Faction.Common
       Types.Faction.Eerie
+      Types.Faction.FactionCommon
       Types.Faction.Marquis
       Types.Game
       Types.GameMap

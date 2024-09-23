@@ -6,6 +6,7 @@ module Types.Faction.Marquis (
     CatPhase (..),
     CatAction (..),
     -- Lenses
+    common,
     -- Constructors
     -- Stateful functions
     takeWoodToken,
@@ -15,11 +16,12 @@ module Types.Faction.Marquis (
 import Lens.Micro.Mtl
 import Lens.Micro.TH
 
-import Types.IxTable
-import Types.Card
 import Types.Alias
-import Types.Common
-import Types.Faction.Common
+import Types.Card
+import Types.CommonTypes
+import Types.Default
+import Types.Faction.FactionCommon
+import Types.IxTable
 
 ----------------------------------
 -- Types
@@ -34,7 +36,7 @@ data CatFaction = CatFaction
 
 data CatPhase
     = CatPlaceWoodPhase
-    | -- parameters: suitsUsed :: [Suit]
+    | -- parameters: workshopsUsed :: [Suit]
       CatCraftPhase [Suit]
     | -- parameters: actionsLeft :: Int
       CatChooseActionPhase Int
@@ -51,6 +53,19 @@ data CatAction
     | CatDraw
 
 ----------------------------------
+-- Instances
+----------------------------------
+-- TODO verify values
+instance Default CatFaction where
+  def = CatFaction
+    { _common = def
+    , _sawmills = 5
+    , _workshops = 5
+    , _recruiters = 5
+    , _woodTokens = 20
+    }
+
+----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''CatFaction
@@ -58,10 +73,11 @@ makeLenses ''CatFaction
 ----------------------------------
 -- Stateful functions
 ----------------------------------
--- Returns either an empty list or a list containing a single wood token.
--- Since the monoid instance of Maybe doesn't really work, we use this
--- as a workaround for any stateful function with a non-empty return type
--- so that we can easily use these within a "zoomed" context.
+{-
+    Parameters: none
+    Errors: none
+    Returns: either an empty list or a list containing a single wood token.
+-}
 takeWoodToken :: Update CatFaction [Token]
 takeWoodToken = do
     remainingWood <- use woodTokens

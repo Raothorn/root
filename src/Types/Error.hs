@@ -4,7 +4,9 @@ module Types.Error (
 
 data Error 
     = Error
+    | EmptyTypeEncountered
     | NotImplemented
     | NotFactionTurn
+    | CannotAffordCraft
+    | CardNotInHand
     deriving (Show, Eq)
-

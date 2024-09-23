@@ -1,10 +1,11 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Util (
-    -- Failure
+    -- State
     useEither,
     liftErr,
     liftMaybe,
+    listReturn,
     -- Control
     whenM,
     -- IxTable
@@ -13,6 +14,7 @@ module Util (
     deleteIxEntry,
     -- List
     bagDifference,
+    bagSubsetOf,
 ) where
 
 import Control.Monad
@@ -29,7 +31,7 @@ import Types.Error
 import Types.IxTable as I
 
 ----------------------------------
--- Failure Utilities
+-- State Utilities
 ----------------------------------
 useEither :: Error -> SimpleGetter s (Maybe a) -> Update s a
 useEither err l = do
@@ -46,8 +48,22 @@ liftMaybe x = do
     let eitherX = maybeToEither Error x
     lift eitherX
 
+{- 
+Notes: Since the monoid instance of Maybe doesn't really work, we wrap with a list
+as a workaround for any stateful function with a non-empty, non-monoidal return type
+so that we can easily use these within a "zoomed" context.
+-}
+listReturn :: Update s a -> Update s [a]
+listReturn f = do
+    x <- f
+    return [x]
+----------------------------------
+-- Failure utitilies
+----------------------------------
 maybeToEither :: Error -> Maybe a -> Either Error a
 maybeToEither err = maybe (Left err) Right
+
+
 
 ----------------------------------
 -- Control Utilities
@@ -82,3 +98,9 @@ bagDifference items removeItems = MS.toList (MS.difference items' removeItems')
   where
     items' = MS.fromList items
     removeItems' = MS.fromList removeItems
+
+bagSubsetOf :: (Ord a) => [a] -> [a] -> Bool
+bagSubsetOf l1 l2 = MS.isSubsetOf l1' l2'
+  where
+    l1' = MS.fromList l1
+    l2' = MS.fromList l2

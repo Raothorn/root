@@ -1,9 +1,10 @@
 module Lookup.CardLookup (
-    lookupCard
+    lookupCard,
 ) where
 
-import Types.IxTable (Index)
 import Types.Card
+import Types.Default
+import Types.IxTable (Index)
 
 lookupCard :: Index Card -> Card
-lookupCard _ = newCard
+lookupCard = const def

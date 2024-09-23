@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Types.IxTable (
-    IxTable (),
+    IxTable,
     Indexed (..),
     ConIx,
     Index,
@@ -23,6 +23,8 @@ import Lens.Micro
 import Lens.Micro.GHC ()
 import Lens.Micro.TH
 
+import Types.Default
+
 ----------------------------------
 -- Typeclasses
 ----------------------------------
@@ -34,6 +36,8 @@ type ConIx a = Index a -> a
 newtype Index a = Index Int
     deriving (Eq, Ord)
 
+instance Default (Index a) where
+  def = Index 0
 ----------------------------------
 -- Types
 ----------------------------------
@@ -42,14 +46,10 @@ data IxTable a = IxTable
     , _contents :: M.Map (Index a) a
     }
 
-----------------------------------
--- Instances
-----------------------------------
-values :: IxTable a -> [a]
-values = M.elems . _contents
-
 makeLenses ''IxTable
 
+values :: IxTable a -> [a]
+values = M.elems . _contents
 ----------------------------------
 -- Constructors
 ----------------------------------

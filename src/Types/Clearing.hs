@@ -23,7 +23,7 @@ import Lens.Micro.Mtl
 
 import Types.Alias
 import Types.IxTable
-import Types.Common
+import Types.CommonTypes
 
 ----------------------------------
 -- Types
