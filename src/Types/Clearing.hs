@@ -10,8 +10,6 @@ module Types.Clearing (
     buildings,
     tokens,
     -- Constructor
-    -- Stateful functions
-    addToken,
     -- Helpers
     hasToken,
     hasBuilding,
@@ -19,9 +17,7 @@ module Types.Clearing (
 
 import Lens.Micro
 import Lens.Micro.TH
-import Lens.Micro.Mtl
 
-import Types.Alias
 import Types.IxTable
 import Types.CommonTypes
 
@@ -47,12 +43,6 @@ instance Indexed Clearing where
 -- Lenses
 ----------------------------------
 makeLenses ''Clearing
-
-----------------------------------
--- Stateful functions
-----------------------------------
-addToken :: Token -> Update Clearing ()
-addToken token = tokens %= (token :)
 
 ----------------------------------
 -- Helpers

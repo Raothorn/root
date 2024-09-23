@@ -3,8 +3,8 @@ module ExecAction (
 ) where
 
 import ExecAction.CatAction
-import Types
-import qualified Types.Game as Game
+import Root.Types
+import qualified Root.Game as Game
 import Util
 
 ----------------------------------

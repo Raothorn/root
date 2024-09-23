@@ -10,5 +10,6 @@ import Types.IxTable (Index)
 data LogEvent
     = -- General events
       CardCrafted (Index Card) Faction
+    | GainedVictoryPoints Int
     | -- Cat events
       WoodPlaced (Index Clearing)

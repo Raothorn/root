@@ -1,19 +1,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Types.RootBoard (
+module Types.Board (
     -- Types
-    RootBoard,
+    Board,
     -- Lenses
     clearings,
-    -- Stateful functions
-    getClearingsP,
 ) where
 
-import Lens.Micro
-import Lens.Micro.Mtl
 import Lens.Micro.TH
 
-import Types.Alias
 import Types.Clearing (Clearing)
 import Types.Default
 import Types.IxTable as I
@@ -21,26 +16,21 @@ import Types.IxTable as I
 ----------------------------------
 -- Types
 ----------------------------------
-newtype RootBoard = RootBoard
+newtype Board = Board
     { _clearings :: IxTable Clearing
     }
 
 ----------------------------------
 -- Instances
 ----------------------------------
-instance Default RootBoard where
+instance Default Board where
     def =
-        RootBoard
+        Board
             { _clearings = I.empty
             }
 
 ----------------------------------
 -- Lenses
 ----------------------------------
-makeLenses ''RootBoard
+makeLenses ''Board
 
-----------------------------------
--- Stateful functions
-----------------------------------
-getClearingsP :: (Clearing -> Bool) -> Update RootBoard [Clearing]
-getClearingsP p = use (clearings . to I.values) <&> filter p

@@ -9,6 +9,7 @@ import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.State.Lazy
+import Control.Monad.Trans.Writer.Lazy
 import Data.Functor
 import Data.Maybe
 
@@ -41,8 +42,7 @@ runActionTests =
 runTest :: String -> ActionTest -> TestTree
 runTest name test = testCase name test'
   where
-    game = def
-    test' = void $ runMaybeT (test game)
+    test' = void $ runMaybeT (test def)
 
 ----------------------------------
 -- Tests
@@ -53,12 +53,12 @@ runTest name test = testCase name test'
 ----------------------------------
 expect :: s -> Update s a -> M (s, a)
 expect state f = do
-    let result = runStateT f state
+    let result = runWriterT $ runStateT f state
     case result of
         Left err -> do
             lift $ assertString $ "Expected a valid result, but got an error: " <> show err
             nothing
-        Right (x, state') -> do
+        Right ((x, state'), _) -> do
             return (state', x)
 
 expect' :: s -> Update s a -> M s
@@ -69,7 +69,7 @@ eval state f = expect state f <&> snd
 
 expectErr :: Error -> s -> Update s a -> M ()
 expectErr expectedErr state f = do
-    let result = runStateT f state
+    let result = runWriterT $ runStateT f state
     case result of
         Left err ->
             lift $ assertEqual "Got an error, but not the right type" expectedErr err

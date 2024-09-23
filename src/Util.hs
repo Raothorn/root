@@ -1,10 +1,10 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Util (
-    -- State
+    -- Monad Stack
     useEither,
     liftErr,
-    liftMaybe,
+    logEvent,
     listReturn,
     -- Control
     whenM,
@@ -19,19 +19,19 @@ module Util (
 
 import Control.Monad
 import Control.Monad.Trans.Class
-import Control.Monad.Trans.State.Lazy
+import Control.Monad.Trans.Writer.Lazy
 import qualified Data.MultiSet as MS
 
 import Lens.Micro
 import Lens.Micro.Mtl
 
--- Only import game-agnostic types
 import Types.Alias
 import Types.Error
 import Types.IxTable as I
+import Types.LogEvent
 
 ----------------------------------
--- State Utilities
+-- Monad Stack Utilities
 ----------------------------------
 useEither :: Error -> SimpleGetter s (Maybe a) -> Update s a
 useEither err l = do
@@ -41,14 +41,12 @@ useEither err l = do
         Nothing -> liftErr err
 
 liftErr :: Error -> Update s a
-liftErr = lift . Left
+liftErr = lift . lift . Left
 
-liftMaybe :: Maybe a -> Update s a
-liftMaybe x = do
-    let eitherX = maybeToEither Error x
-    lift eitherX
+logEvent :: LogEvent -> Update s ()
+logEvent event = lift $ writer ((), [event])
 
-{- 
+{-
 Notes: Since the monoid instance of Maybe doesn't really work, we wrap with a list
 as a workaround for any stateful function with a non-empty, non-monoidal return type
 so that we can easily use these within a "zoomed" context.
@@ -57,13 +55,12 @@ listReturn :: Update s a -> Update s [a]
 listReturn f = do
     x <- f
     return [x]
+
 ----------------------------------
 -- Failure utitilies
 ----------------------------------
 maybeToEither :: Error -> Maybe a -> Either Error a
 maybeToEither err = maybe (Left err) Right
-
-
 
 ----------------------------------
 -- Control Utilities

@@ -7,16 +7,14 @@ module Types.Faction.Marquis (
     CatAction (..),
     -- Lenses
     common,
+    woodTokens,
     -- Constructors
-    -- Stateful functions
-    takeWoodToken,
     -- Helpers
 ) where
 
 import Lens.Micro.Mtl
 import Lens.Micro.TH
 
-import Types.Alias
 import Types.Card
 import Types.CommonTypes
 import Types.Default
@@ -70,19 +68,3 @@ instance Default CatFaction where
 ----------------------------------
 makeLenses ''CatFaction
 
-----------------------------------
--- Stateful functions
-----------------------------------
-{-
-    Parameters: none
-    Errors: none
-    Returns: either an empty list or a list containing a single wood token.
--}
-takeWoodToken :: Update CatFaction [Token]
-takeWoodToken = do
-    remainingWood <- use woodTokens
-    if remainingWood > 0
-        then do
-            woodTokens -= 1
-            return [Wood]
-        else return []

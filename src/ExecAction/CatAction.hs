@@ -8,14 +8,14 @@ import Lens.Micro
 import Lens.Micro.Mtl
 
 import Lookup.CardLookup
-import Types
-import qualified Types.Card as Card
-import qualified Types.Clearing as Clr
-import Types.Faction
-import Types.Faction.FactionCommon as Com
-import qualified Types.Faction.Marquis as Cat
-import qualified Types.Game as Game
-import qualified Types.RootBoard as Board
+
+import Root.Types
+import qualified Root.Marquis as Cat
+import qualified Root.Game as Game
+import qualified Root.Board as Board
+import qualified Root.Card as Card
+import qualified Root.Clearing as Clr
+import qualified Root.FactionCommon as Com
 import Util
 
 ----------------------------------
@@ -45,7 +45,7 @@ execCatAction CatPlaceWoodPhase CatPlaceWood = do
         -- Place the wood token in the clearing
         forM_ woodToken $ \w -> do
             Game.zoomClearing' clearing (Clr.addToken w)
-            Game.logEvent $ WoodPlaced (getIx clearing)
+    -- Game.logEvent $ WoodPlaced (getIx clearing)
 
     -- Advance the phase
     Game.setPhase $ MarquisPhase $ CatCraftPhase []
@@ -86,8 +86,6 @@ execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
                 -- Craft the card
                 Com.craftCard card
 
-            -- Log the crafting Action
-            Game.logEvent (CardCrafted cardIx Marquis)
             -- Update "workshopsUsed"
             Game.setPhase $ MarquisPhase $ CatCraftPhase (workshopsUsed ++ cardCost)
         else liftErr CannotAffordCraft

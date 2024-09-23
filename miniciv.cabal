@@ -29,10 +29,22 @@ library
       ExecAction.CatAction
       Lib
       Lookup.CardLookup
+      Root.Board
+      Root.Card
+      Root.Clearing
+      Root.FactionCommon
+      Root.Game
+      Root.Marquis
+      Root.Types
+      State.BoardState
+      State.ClearingState
+      State.FactionCommonState
+      State.GameState
+      State.MarquisState
       Test.ActionTest
-      Types
       Types.Action
       Types.Alias
+      Types.Board
       Types.Card
       Types.Clearing
       Types.CommonTypes
@@ -47,7 +59,6 @@ library
       Types.IxTable
       Types.LogEvent
       Types.Phase
-      Types.RootBoard
       Util
   other-modules:
       Paths_miniciv

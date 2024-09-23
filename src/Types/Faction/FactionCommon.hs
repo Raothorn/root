@@ -5,10 +5,9 @@ module Types.Faction.FactionCommon (
     Faction(..),
     FactionCommon,
     -- Lenses
+    faction,
     hand,
-    -- Stateful functions
-    craftCard,
-    removeCard,
+    victoryPoints,
 ) where
 
 import Lens.Micro
@@ -16,13 +15,11 @@ import Lens.Micro.Mtl
 import Lens.Micro.TH
 
 import Lookup.CardLookup (lookupCard)
-import Types.Alias
 import Types.Card (Card, CardEffect (..))
 import qualified Types.Card as Card
 import Types.Default
 import Types.Error
 import Types.IxTable
-import Util
 
 ----------------------------------
 -- Types
@@ -54,31 +51,3 @@ instance Default FactionCommon where
 ----------------------------------
 makeLenses ''FactionCommon
 
-----------------------------------
--- Stateful functions
-----------------------------------
-{-
-Parameters: card :: Card - the card the faction is crafting
-Errors: EmptyTypeEncountered if the card effect is NoEffect
-Updates: The victory points from the card are added to the faction VPs
-Returns: Logs
--}
-craftCard :: Card -> Update FactionCommon ()
-craftCard card = do
-    case card ^. Card.effect of
-        VictoryPoints n -> victoryPoints += n
-        NoEffect -> liftErr EmptyTypeEncountered
-{-
-Parameters: `cardIx :: Index Card` - the index of the card to remove
-Errors: `CardNotInHand` if the card is not present in `hand`
-Updates: The card is no longer in the hand
-Returns: The card data associated with the card index
--}
-removeCard :: Index Card -> Update FactionCommon Card
-removeCard cardIx = do
-    curHand <- use hand
-    if cardIx `elem` curHand
-        then do
-            hand %= filter (/= cardIx)
-            return $ lookupCard cardIx
-        else liftErr CardNotInHand
