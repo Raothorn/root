@@ -6,6 +6,8 @@ data Error
     = Error
     | EmptyTypeEncountered
     | NotImplemented
+    | WrongPhase
+    | NoActionsRemaining
     | NotFactionTurn
     | CannotAffordCraft
     | CardNotInHand

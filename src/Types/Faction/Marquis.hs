@@ -5,9 +5,14 @@ module Types.Faction.Marquis (
     CatFaction,
     CatPhase (..),
     CatAction (..),
+    CatSetup,
     -- Lenses
     common,
     woodTokens,
+    keepCorner,
+    sawmillClearing,
+    workshopClearing,
+    recruiterClearing,
     -- Constructors
     -- Helpers
 ) where
@@ -15,10 +20,11 @@ module Types.Faction.Marquis (
 import Lens.Micro.Mtl
 import Lens.Micro.TH
 
-import Types.Card
+import Types.Card (Card)
+import Types.Clearing (Clearing)
 import Types.CommonTypes
 import Types.Default
-import Types.Faction.FactionCommon
+import Types.Faction.FactionCommon (FactionCommon)
 import Types.IxTable
 
 ----------------------------------
@@ -29,11 +35,13 @@ data CatFaction = CatFaction
     , _sawmills :: Int
     , _workshops :: Int
     , _recruiters :: Int
+    , _warriors :: Int
     , _woodTokens :: Int
     }
 
 data CatPhase
-    = CatPlaceWoodPhase
+    = CatSetupPhase
+    | CatPlaceWoodPhase
     | -- parameters: workshopsUsed :: [Suit]
       CatCraftPhase [Suit]
     | -- parameters: actionsLeft :: Int
@@ -50,6 +58,13 @@ data CatAction
     | CatOverwork
     | CatDraw
 
+data CatSetup = CatSetup 
+    { _keepCorner :: Index Clearing
+    , _sawmillClearing :: Index Clearing
+    , _workshopClearing :: Index Clearing
+    , _recruiterClearing :: Index Clearing
+    }
+
 ----------------------------------
 -- Instances
 ----------------------------------
@@ -60,11 +75,12 @@ instance Default CatFaction where
     , _sawmills = 5
     , _workshops = 5
     , _recruiters = 5
-    , _woodTokens = 20
+    , _warriors = 25
+    , _woodTokens = 8
     }
 
 ----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''CatFaction
-
+makeLenses ''CatSetup

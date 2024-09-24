@@ -27,6 +27,7 @@ library
   exposed-modules:
       ExecAction
       ExecAction.CatAction
+      ExecAction.CommonActions
       Lib
       Lookup.CardLookup
       Root.Board

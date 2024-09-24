@@ -91,6 +91,22 @@ execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
         else liftErr CannotAffordCraft
 
 ----------------------------------
+-- Daylight Actions
+----------------------------------
+execCatAction (CatChooseActionPhase n) action = do
+    when (n <= 0) $ liftErr NoActionsRemaining
+    -- We defer checking if the action is valid to the dispatched function
+    execDaylightAction action
+
+----------------------------------
 -- Otherwise
 ----------------------------------
 execCatAction _ _ = liftErr NotImplemented
+
+execDaylightAction :: CatAction -> Update Game ()
+execDaylightAction CatBattle = liftErr NotImplemented
+execDaylightAction CatMarch = liftErr NotImplemented
+execDaylightAction CatRecruit = liftErr NotImplemented
+execDaylightAction CatBuild = liftErr NotImplemented
+execDaylightAction CatOverwork = liftErr NotImplemented
+execDaylightAction _ = liftErr WrongPhase
