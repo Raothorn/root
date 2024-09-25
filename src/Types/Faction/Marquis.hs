@@ -14,17 +14,17 @@ module Types.Faction.Marquis (
     workshopClearing,
     recruiterClearing,
     -- Constructors
+    newCatSetup,
     -- Helpers
 ) where
 
-import Lens.Micro.Mtl
 import Lens.Micro.TH
 
 import Types.Card (Card)
 import Types.Clearing (Clearing)
 import Types.CommonTypes
 import Types.Default
-import Types.Faction.FactionCommon (FactionCommon)
+import Types.Faction.FactionCommon
 import Types.IxTable
 
 ----------------------------------
@@ -35,7 +35,6 @@ data CatFaction = CatFaction
     , _sawmills :: Int
     , _workshops :: Int
     , _recruiters :: Int
-    , _warriors :: Int
     , _woodTokens :: Int
     }
 
@@ -49,7 +48,8 @@ data CatPhase
     | CatDrawPhase
 
 data CatAction
-    = CatPlaceWood
+    = CatFactionSetup CatSetup
+    | CatPlaceWood
     | CatCraft (Index Card)
     | CatBattle
     | CatMarch
@@ -71,11 +71,10 @@ data CatSetup = CatSetup
 -- TODO verify values
 instance Default CatFaction where
   def = CatFaction
-    { _common = def
+    { _common = newFactionCommon Marquis 25
     , _sawmills = 5
     , _workshops = 5
     , _recruiters = 5
-    , _warriors = 25
     , _woodTokens = 8
     }
 
@@ -84,3 +83,10 @@ instance Default CatFaction where
 ----------------------------------
 makeLenses ''CatFaction
 makeLenses ''CatSetup
+
+----------------------------------
+-- Constructors
+----------------------------------
+newCatSetup :: (Int, Int, Int, Int) -> CatSetup
+newCatSetup (keep, saw, work, recruit) = 
+    CatSetup (makeIx keep) (makeIx saw) (makeIx work) (makeIx recruit)

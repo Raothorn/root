@@ -2,8 +2,9 @@
 
 module Util (
     -- Monad Stack
-    useEither,
+    useMaybe,
     liftErr,
+    liftMaybe,
     logEvent,
     listReturn,
     -- Control
@@ -33,8 +34,8 @@ import Types.LogEvent
 ----------------------------------
 -- Monad Stack Utilities
 ----------------------------------
-useEither :: Error -> SimpleGetter s (Maybe a) -> Update s a
-useEither err l = do
+useMaybe :: Error -> SimpleGetter s (Maybe a) -> Update s a
+useMaybe err l = do
     value <- use l
     case value of
         Just v -> return v
@@ -42,6 +43,9 @@ useEither err l = do
 
 liftErr :: Error -> Update s a
 liftErr = lift . lift . Left
+
+liftMaybe :: Error -> Maybe a -> Update s a
+liftMaybe err mValue = useMaybe err (to $ const mValue)
 
 logEvent :: LogEvent -> Update s ()
 logEvent event = lift $ writer ((), [event])
@@ -82,7 +86,7 @@ addIxEntry l con = do
     return x
 
 getIxEntry :: Error -> Lens' s (IxTable a) -> Index a -> Update s a
-getIxEntry err l entryId = useEither err $ l . atTable entryId
+getIxEntry err l entryId = useMaybe err $ l . atTable entryId
 
 deleteIxEntry :: Lens' s (IxTable a) -> Index a -> Update s ()
 deleteIxEntry l entryId = l %= I.delete entryId

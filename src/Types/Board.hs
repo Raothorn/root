@@ -1,9 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Types.Board (
     -- Types
     Board,
     -- Lenses
     clearings,
+    -- Constructors
+    newBoard,
 ) where
 
 import Lens.Micro.TH
@@ -33,3 +36,8 @@ instance Default Board where
 ----------------------------------
 makeLenses ''Board
 
+----------------------------------
+-- Constructors
+----------------------------------
+newBoard :: IxTable Clearing -> Board
+newBoard = Board

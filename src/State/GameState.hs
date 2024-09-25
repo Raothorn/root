@@ -1,5 +1,6 @@
 module State.GameState (
     -- Zooming
+    zoomClearings,
     zoomClearing,
     zoomClearing',
     zoomCat,
@@ -9,6 +10,9 @@ module State.GameState (
     setPhase,
     pushPhase,
     popPhase,
+    -- Misc getters
+    getClearing,
+    getClearings,
 ) where
 
 import Data.Maybe
@@ -20,10 +24,15 @@ import Root.Types
 import qualified Types.Board as Board
 import Types.Game
 import qualified Types.IxTable as I
+import Util
+
 
 ----------------------------------
 -- Zooming
 ----------------------------------
+zoomClearings :: (Monoid a) => Update Clearing a -> Update Game a 
+zoomClearings = zoom (board . Board.clearings . I.traverseTable)
+
 zoomClearing :: (Monoid a) => Index Clearing -> Update Clearing a -> Update Game a
 zoomClearing i = zoom (board . Board.clearings . I.ixTable i)
 
@@ -44,7 +53,7 @@ zoomBird = zoom (playerFactions . eerie . traversed)
 -- happen in pairs. The easiest way to do this is to use "setPhase"
 -- whenever possible, instead of pushPhase and popPhase
 getPhase :: Update Game Phase
-getPhase = preuse (phaseStack . _head) <&> fromMaybe NoPhase
+getPhase = useMaybe EmptyPhaseStack (phaseStack . to listToMaybe)
 
 setPhase :: Phase -> Update Game ()
 setPhase phase = popPhase >> pushPhase phase
@@ -54,3 +63,12 @@ pushPhase phase = phaseStack %= (phase :)
 
 popPhase :: Update Game ()
 popPhase = phaseStack %= tail
+
+----------------------------------
+-- Misc Getters
+----------------------------------
+getClearing :: Index Clearing -> Update Game Clearing
+getClearing clearingIx = useMaybe IndexError (board . Board.clearings . I.atTable clearingIx)
+
+getClearings :: Update Game [Clearing]
+getClearings = use $ board . Board.clearings . to I.values

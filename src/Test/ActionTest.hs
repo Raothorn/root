@@ -11,17 +11,18 @@ import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.State.Lazy
 import Control.Monad.Trans.Writer.Lazy
 import Data.Functor
-import Data.Maybe
 
 import Lens.Micro
 
 import Test.Tasty
 import Test.Tasty.HUnit
 
-import Types.Alias
-import Types.Error
-import Types.Game as G
-import Types.Default
+import ExecAction
+import qualified Root.Clearing as Clr
+import qualified Root.Game as Game
+import qualified Root.Marquis as Cat
+import Root.Types
+import Types.IxTable
 
 ----------------------------------
 -- Types
@@ -37,16 +38,50 @@ runActionTests :: TestTree
 runActionTests =
     testGroup
         "action tests"
-        [ ]
+        [ runTest "Cat Setup" testCatSetup
+        ]
 
 runTest :: String -> ActionTest -> TestTree
 runTest name test = testCase name test'
   where
-    test' = void $ runMaybeT (test def)
+    -- All of the tests are run with the default forest map
+    test' = void $ runMaybeT (test Game.newForestGame)
 
 ----------------------------------
 -- Tests
 ----------------------------------
+testCatSetup :: ActionTest
+testCatSetup game = do
+    -- Place the keep in the top left corner (1) and the other buildings in the
+    -- adjacent clearings (sawmill-2, workshop-4, recruit-7)
+    let clearingIxs = (1, 2, 4, 7)
+        setup = Cat.newCatSetup clearingIxs
+        setupAction = Faction $ MarquisAction $ CatFactionSetup setup
+    game <- expect' game $ execAction setupAction
+
+    -- Get all the clearings
+    [c1, c2, c4, c7] <- eval game $ do
+        let cIxs = clearingIxs ^.. each
+        forM cIxs $ \cIx -> Game.getClearing (makeIx cIx)
+
+    -- Verify that the keep is in clearing 1
+    assertThat $ tokenInClearing Keep c1
+
+    -- Verify that the initial buildings are in the correct clearings
+    let clearingBuildings = [(Sawmill, c2), (Workshop, c4), (Recruiter, c7)]
+    forM_ clearingBuildings $ \(b, c) -> assertThat $ buildingInClearing b c
+
+    -- Verify that all the warriors have been placed
+    allClearings <- eval game Game.getClearings
+    let oppositeClearingIx = makeIx 10 :: Index Clearing
+
+    forM_ allClearings $ \clearing -> do
+        let assertion = warriorInClearing CatWarrior clearing
+        if getIx clearing == oppositeClearingIx
+            then -- There should be no warrior in the opposite clearing
+                assertNot assertion
+            else -- There should be a warrior in every other clearing
+                assertThat assertion
 
 ----------------------------------
 -- Helpers
@@ -80,13 +115,35 @@ nothing :: M a
 nothing = mzero
 
 ----------------------------------
--- Setup
-----------------------------------
-
-----------------------------------
--- Queries
-----------------------------------
-
-----------------------------------
 -- Assertions
+----------------------------------
+type MyAssertion = (Bool, String)
+
+assertThat :: MyAssertion -> M ()
+assertThat (p, assert) = lift $ assertBool err p
+  where
+    err = "Expected: " <> assert
+
+assertNot :: MyAssertion -> M ()
+assertNot (p, assert) = lift $ assertBool err (not p)
+  where
+    err = "Not expected: " <> assert
+
+tokenInClearing :: Token -> Clearing -> MyAssertion
+tokenInClearing token clearing = (Clr.hasToken token clearing, assert)
+  where
+    assert = "Token " <> show token <> " in clearing " <> show (getIx' clearing)
+
+buildingInClearing :: Building -> Clearing -> MyAssertion
+buildingInClearing building clearing = (Clr.hasBuilding building clearing, assert)
+  where
+    assert = "Building " <> show building <> " in clearing " <> show (getIx' clearing)
+
+warriorInClearing :: Warrior -> Clearing -> MyAssertion
+warriorInClearing warrior clearing = (Clr.hasWarrior warrior clearing, assert)
+  where
+    assert = "Warrior " <> show warrior <> " in clearing " <> show (getIx' clearing)
+
+----------------------------------
+-- Helpers
 ----------------------------------

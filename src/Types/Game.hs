@@ -10,14 +10,18 @@ module Types.Game (
     playerFactions,
     marquis,
     eerie,
+    -- Constructors
+    newForestGame,
 ) where
 
+import Lens.Micro
 import Lens.Micro.TH
 
+import Lookup.BoardLookup
+import Types.Board
 import Types.Default
 import Types.Faction
 import Types.Phase
-import Types.Board
 
 ----------------------------------
 -- Type
@@ -42,7 +46,7 @@ instance Default PlayerFactions where
 instance Default Game where
     def =
         Game
-            { _phaseStack = [def]
+            { _phaseStack = [MarquisPhase CatSetupPhase]
             , _board = def
             , _playerFactions = def
             }
@@ -52,3 +56,10 @@ instance Default Game where
 ----------------------------------
 makeLenses ''Game
 makeLenses ''PlayerFactions
+
+----------------------------------
+-- Constructors
+----------------------------------
+newForestGame :: Game
+newForestGame =
+    def & (board .~ forestMap)

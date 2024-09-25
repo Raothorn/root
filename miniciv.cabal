@@ -36,6 +36,7 @@ library
       Root.Clearing
       Root.FactionCommon
       Root.Game
+      Root.Lookup
       Root.Marquis
       Root.Types
       State.BoardState

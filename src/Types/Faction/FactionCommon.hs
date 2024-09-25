@@ -2,23 +2,22 @@
 
 module Types.Faction.FactionCommon (
     -- Types
-    Faction(..),
+    Faction (..),
     FactionCommon,
+    -- Constructors
+    newFactionCommon,
     -- Lenses
     faction,
+    warriors,
     hand,
     victoryPoints,
 ) where
 
 import Lens.Micro
-import Lens.Micro.Mtl
 import Lens.Micro.TH
 
-import Lookup.CardLookup (lookupCard)
-import Types.Card (Card, CardEffect (..))
-import qualified Types.Card as Card
+import Types.Card (Card)
 import Types.Default
-import Types.Error
 import Types.IxTable
 
 ----------------------------------
@@ -31,6 +30,7 @@ data Faction
 
 data FactionCommon = FactionCommon
     { _faction :: Faction
+    , _warriors :: Int
     , _hand :: [Index Card]
     , _victoryPoints :: Int
     }
@@ -42,6 +42,7 @@ instance Default FactionCommon where
     def =
         FactionCommon
             { _faction = NoFaction
+            , _warriors = 0
             , _hand = []
             , _victoryPoints = 0
             }
@@ -51,3 +52,8 @@ instance Default FactionCommon where
 ----------------------------------
 makeLenses ''FactionCommon
 
+----------------------------------
+-- Constructors
+----------------------------------
+newFactionCommon :: Faction -> Int -> FactionCommon
+newFactionCommon fac numWarriors = def & faction .~ fac & warriors .~ numWarriors

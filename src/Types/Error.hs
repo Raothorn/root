@@ -4,6 +4,8 @@ module Types.Error (
 
 data Error 
     = Error
+    | IndexError
+    | EmptyPhaseStack
     | EmptyTypeEncountered
     | NotImplemented
     | WrongPhase
@@ -11,4 +13,8 @@ data Error
     | NotFactionTurn
     | CannotAffordCraft
     | CardNotInHand
+    | NotCornerClearing
+    | NoFreeBuildingSlots
+    | EmptySupply
+    | InvalidBuildingLocation
     deriving (Show, Eq)

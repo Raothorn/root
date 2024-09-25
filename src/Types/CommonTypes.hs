@@ -2,6 +2,7 @@ module Types.CommonTypes (
     Suit (..),
     Token (..),
     Building (..),
+    Warrior (..),
 ) where
 
 import Types.Default
@@ -14,11 +15,24 @@ import Types.Default
 data Suit = Mouse | Fox | Rabbit | Bird | NoSuit
     deriving (Eq, Ord)
 
-data Token = Wood | NoToken
-    deriving (Eq)
+data Token
+    = Wood
+    | Keep
+    | NoToken
+    deriving (Eq, Show)
 
-data Building = Sawmill | Workshop | NoBuilding
-    deriving (Eq)
+data Warrior
+    = CatWarrior
+    | BirdWarrior
+    | NoWarrior
+    deriving (Eq, Show)
+
+data Building 
+    = Sawmill 
+    | Workshop 
+    | Recruiter
+    | NoBuilding
+    deriving (Eq, Show)
 
 ----------------------------------
 -- Instances

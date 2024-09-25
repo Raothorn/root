@@ -4,18 +4,25 @@ module Types.Clearing (
     -- Types
     Clearing,
     -- Lenses
+    index,
     adjacent,
-    isCorner,
+    oppositeCorner,
     suit,
     buildingSlots,
     buildings,
     tokens,
+    warriors,
     -- Constructor
     newClearing,
     -- Helpers
+    isCorner,
+    isAdjacent,
     hasToken,
     hasBuilding,
+    hasWarrior,
 ) where
+
+import Data.Maybe
 
 import Lens.Micro
 import Lens.Micro.TH
@@ -30,11 +37,12 @@ import Types.IxTable
 data Clearing = Clearing
     { _index :: Index Clearing
     , _adjacent :: [Index Clearing]
-    , _isCorner :: Bool
+    , _oppositeCorner :: Maybe (Index Clearing)
     , _suit :: Suit
     , _buildingSlots :: Int
     , _buildings :: [Building]
     , _tokens :: [Token]
+    , _warriors :: [Warrior]
     }
 
 ----------------------------------
@@ -51,11 +59,12 @@ newClearing index =
     Clearing
         { _index = index
         , _adjacent = []
-        , _isCorner = False
+        , _oppositeCorner = Nothing
         , _suit = def
         , _buildingSlots = 0
         , _buildings = []
         , _tokens = []
+        , _warriors = []
         }
 
 ----------------------------------
@@ -66,8 +75,17 @@ makeLenses ''Clearing
 ----------------------------------
 -- Helpers
 ----------------------------------
+isCorner :: Clearing -> Bool
+isCorner = isJust . _oppositeCorner
+
+isAdjacent :: Clearing -> Index Clearing -> Bool
+isAdjacent clearing other = other `elem` clearing ^. adjacent
+
 hasToken :: Token -> Clearing -> Bool
 hasToken token clearing = token `elem` clearing ^. tokens
 
 hasBuilding :: Building -> Clearing -> Bool
 hasBuilding building clearing = building `elem` clearing ^. buildings
+
+hasWarrior :: Warrior -> Clearing -> Bool
+hasWarrior warrior clearing = warrior `elem` clearing ^. warriors

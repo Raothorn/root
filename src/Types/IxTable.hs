@@ -15,6 +15,7 @@ module Types.IxTable (
     atTable,
     ixTable,
     delete,
+    traverseTable,
     values,
     createN,
 ) where
@@ -60,6 +61,11 @@ instance Default (Index a) where
 
 instance Functor IxTable where
     fmap f tbl = tbl & contents %~ M.mapKeys changeIndex . fmap f
+
+instance Foldable IxTable where
+  foldr :: (a -> b -> b) -> b -> IxTable a -> b
+  foldr f x tbl = foldr f x (tbl ^. contents)
+
 ----------------------------------
 -- Constructors
 ----------------------------------
@@ -85,7 +91,6 @@ insert construct table = (table', val)
 
 insert' :: ConIx a -> IxTable a -> IxTable a
 insert' c t = fst $ insert c t
-
 ----------------------------------
 -- Indexing
 ----------------------------------
@@ -105,6 +110,12 @@ ixTable i = contents . ix i
 ----------------------------------
 delete :: Index a -> IxTable a -> IxTable a
 delete x table = table & contents %~ M.delete x
+
+----------------------------------
+-- Lenses
+----------------------------------
+traverseTable :: Traversal' (IxTable a) a
+traverseTable = contents . traversed
 
 ----------------------------------
 -- Transformers

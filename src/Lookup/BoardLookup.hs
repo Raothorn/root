@@ -1,14 +1,16 @@
 module Lookup.BoardLookup (
-    forestMap
+    forestMap,
 ) where
 
 import Lens.Micro
+
+import Types.Board (Board, newBoard)
 import Types.Clearing
 import Types.CommonTypes
 import Types.IxTable as I
 
-forestMap :: IxTable Clearing
-forestMap = fmap (\c -> initClearing (getIx' c) c) clearings
+forestMap :: Board
+forestMap = newBoard $ fmap (\c -> initClearing (getIx' c) c) clearings
   where
     clearings = I.createN newClearing 1 12
 
@@ -18,7 +20,7 @@ initClearing :: Int -> Clearing -> Clearing
 ----------------------------------
 initClearing 1 =
     (adjacent .~ [makeIx 2, makeIx 4, makeIx 7])
-        . (isCorner .~ True)
+        . (oppositeCorner ?~ makeIx 10)
         . (suit .~ Fox)
         . (buildingSlots .~ 1)
 ----------------------------------
@@ -26,7 +28,6 @@ initClearing 1 =
 ----------------------------------
 initClearing 2 =
     (adjacent .~ [makeIx 1, makeIx 3, makeIx 5])
-        . (isCorner .~ False)
         . (suit .~ Mouse)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -34,7 +35,7 @@ initClearing 2 =
 ----------------------------------
 initClearing 3 =
     (adjacent .~ [makeIx 2, makeIx 5, makeIx 6])
-        . (isCorner .~ True)
+        . (oppositeCorner ?~ makeIx 12)
         . (suit .~ Rabbit)
         . (buildingSlots .~ 1)
 ----------------------------------
@@ -42,7 +43,6 @@ initClearing 3 =
 ----------------------------------
 initClearing 4 =
     (adjacent .~ [makeIx 1, makeIx 5, makeIx 12])
-        . (isCorner .~ False)
         . (suit .~ Rabbit)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -50,7 +50,6 @@ initClearing 4 =
 ----------------------------------
 initClearing 5 =
     (adjacent .~ [makeIx 2, makeIx 4, makeIx 8, makeIx 9, makeIx 3])
-        . (isCorner .~ False)
         . (suit .~ Fox)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -58,7 +57,6 @@ initClearing 5 =
 ----------------------------------
 initClearing 6 =
     (adjacent .~ [makeIx 3, makeIx 9])
-        . (isCorner .~ False)
         . (suit .~ Fox)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -66,7 +64,6 @@ initClearing 6 =
 ----------------------------------
 initClearing 7 =
     (adjacent .~ [makeIx 1, makeIx 12])
-        . (isCorner .~ False)
         . (suit .~ Rabbit)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -74,7 +71,6 @@ initClearing 7 =
 ----------------------------------
 initClearing 8 =
     (adjacent .~ [makeIx 5, makeIx 10, makeIx 11])
-        . (isCorner .~ False)
         . (suit .~ Mouse)
         . (buildingSlots .~ 3)
 ----------------------------------
@@ -82,7 +78,6 @@ initClearing 8 =
 ----------------------------------
 initClearing 9 =
     (adjacent .~ [makeIx 10, makeIx 5, makeIx 6])
-        . (isCorner .~ False)
         . (suit .~ Mouse)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -90,7 +85,7 @@ initClearing 9 =
 ----------------------------------
 initClearing 10 =
     (adjacent .~ [makeIx 9, makeIx 8, makeIx 11])
-        . (isCorner .~ True)
+        . (oppositeCorner ?~ makeIx 1)
         . (suit .~ Rabbit)
         . (buildingSlots .~ 1)
 ----------------------------------
@@ -98,7 +93,6 @@ initClearing 10 =
 ----------------------------------
 initClearing 11 =
     (adjacent .~ [makeIx 12, makeIx 8, makeIx 10])
-        . (isCorner .~ False)
         . (suit .~ Fox)
         . (buildingSlots .~ 2)
 ----------------------------------
@@ -106,8 +100,7 @@ initClearing 11 =
 ----------------------------------
 initClearing 12 =
     (adjacent .~ [makeIx 7, makeIx 4, makeIx 11])
-        . (isCorner .~ True)
+        . (oppositeCorner ?~ makeIx 3)
         . (suit .~ Mouse)
         . (buildingSlots .~ 2)
-
 initClearing _ = id

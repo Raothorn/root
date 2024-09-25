@@ -17,6 +17,8 @@ execAction NoAction = liftErr EmptyTypeEncountered
 ----------------------------------
 -- ExecFactionAction
 ----------------------------------
+-- TODO make phase an argument to this function to make phase
+-- checking cleaner
 execFactionAction :: FactionAction -> Update Game ()
 execFactionAction (MarquisAction action) = do
     currentPhase <- Game.getPhase
