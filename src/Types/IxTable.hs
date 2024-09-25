@@ -6,6 +6,8 @@ module Types.IxTable (
     Indexed (..),
     ConIx,
     Index,
+    getIx',
+    makeIx,
     empty,
     insert,
     insert',
@@ -14,6 +16,7 @@ module Types.IxTable (
     ixTable,
     delete,
     values,
+    createN,
 ) where
 
 import qualified Data.Map as M
@@ -31,13 +34,12 @@ import Types.Default
 class Indexed a where
     getIx :: a -> Index a
 
+getIx' :: (Indexed a) => a -> Int
+getIx' x = 
+    let (Index n) = getIx x
+    in n
+
 type ConIx a = Index a -> a
-
-newtype Index a = Index Int
-    deriving (Eq, Ord)
-
-instance Default (Index a) where
-  def = Index 0
 ----------------------------------
 -- Types
 ----------------------------------
@@ -46,16 +48,30 @@ data IxTable a = IxTable
     , _contents :: M.Map (Index a) a
     }
 
-makeLenses ''IxTable
+newtype Index a = Index Int
+    deriving (Eq, Ord)
 
-values :: IxTable a -> [a]
-values = M.elems . _contents
+makeLenses ''IxTable
+----------------------------------
+-- Instances
+----------------------------------
+instance Default (Index a) where
+  def = Index 0
+
+instance Functor IxTable where
+    fmap f tbl = tbl & contents %~ M.mapKeys changeIndex . fmap f
 ----------------------------------
 -- Constructors
 ----------------------------------
+makeIx :: Int -> Index a
+makeIx = Index
+
 empty :: IxTable a
 empty = IxTable 0 M.empty
 
+createN :: ConIx a -> Int -> Int -> IxTable a
+createN constructor startIx n = foldr (\_ t -> insert' constructor t) initTable [1..n]
+    where initTable = empty & counter .~ startIx
 ----------------------------------
 -- Insertion
 ----------------------------------
@@ -89,3 +105,13 @@ ixTable i = contents . ix i
 ----------------------------------
 delete :: Index a -> IxTable a -> IxTable a
 delete x table = table & contents %~ M.delete x
+
+----------------------------------
+-- Transformers
+----------------------------------
+
+values :: IxTable a -> [a]
+values = M.elems . _contents
+
+changeIndex :: Index a -> Index b
+changeIndex (Index n) = Index n

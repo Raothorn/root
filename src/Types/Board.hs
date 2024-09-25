@@ -1,5 +1,4 @@
 {-# LANGUAGE TemplateHaskell #-}
-
 module Types.Board (
     -- Types
     Board,
