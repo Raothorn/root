@@ -49,6 +49,7 @@ instance Default Card where
 
 instance Default CardEffect where
     def = NoEffect
+
 ----------------------------------
 -- Lenses
 ----------------------------------

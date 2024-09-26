@@ -2,8 +2,8 @@ module ExecAction (
     execAction,
 ) where
 
-import ExecAction.SetupAction
 import ExecAction.CatAction
+import ExecAction.SetupAction
 import qualified Root.Game as Game
 import Root.Types
 import Util
@@ -17,10 +17,9 @@ execAction action = do
     execAction' phase action
 
 execAction' :: Phase -> Action -> Update Game ()
-execAction' (FactionSetupPhase phase) (SetupAction action) = do 
+execAction' (FactionSetupPhase phase) (SetupAction action) = do
     execSetupAction phase action
     Game.popPhase
-
 execAction' (FactionTurnPhase phase) (TurnAction action) = do
     execTurnAction phase action
 execAction' _ _ = liftErr WrongPhase
@@ -29,4 +28,3 @@ execAction' _ _ = liftErr WrongPhase
 execTurnAction :: FactionTurnPhase -> TurnAction -> Update Game ()
 execTurnAction (MarquisPhase phase) (MarquisAction action) = execCatAction phase action
 execTurnAction _ _ = liftErr WrongPhase
-

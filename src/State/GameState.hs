@@ -32,7 +32,7 @@ import Util
 -- Initialize
 ----------------------------------
 initialize :: [Faction] -> Update Game ()
-initialize factions = do 
+initialize factions = do
     -- Ensure the phase stack is empty. This should only ever happen with a brand-new Game.
     stack <- use phaseStack
     unless (null stack) $ liftErr WrongPhase
@@ -71,10 +71,10 @@ getPhase = do
     liftMaybe EmptyPhaseStack (headM stack)
 
 setPhase :: Phase -> Update Game ()
-setPhase phase = popPhase' >> pushPhase phase 
+setPhase phase = popPhase' >> pushPhase phase
 
 pushPhase :: Phase -> Update Game ()
-pushPhase phase = do 
+pushPhase phase = do
     phaseStack %= (phase :)
     logEvent $ PhasePushed phase
 
@@ -85,17 +85,17 @@ popPhase = popPhase' >> updatePhase
 popPhase' :: Update Game ()
 popPhase' = do
     phase <- getPhase
-    phaseStack %= tail 
+    phaseStack %= tail
     logEvent $ PhasePopped phase
 
 {-
-Certain phases are simply tracking state and aren't advanced by actions. 
+Certain phases are simply tracking state and aren't advanced by actions.
 These should be automatically updated behind the scenes.
 -}
-updatePhase :: Update Game () 
+updatePhase :: Update Game ()
 updatePhase = do
     phase <- getPhase
-    case phase of 
+    case phase of
         SetupPhase factions -> updateSetupPhase factions
         TurnPhase turn -> updateTurnPhase turn
         _ -> return ()
@@ -104,13 +104,13 @@ updatePhase = do
 Updates: The next faction to be setup is popped off the list. The phase for that
 particular faction setup is pushed onto the stack. If there are no more remaining
 factions to setup, move onto TurnPhase.
-Example: if the phase stack before execution is [SetupPhase [Marquis, Eeerie]], the 
+Example: if the phase stack before execution is [SetupPhase [Marquis, Eeerie]], the
 phase stack after execution will be [FactionSetupPhase CatSetupPhase, SetupPhase [Eerie]]
 -}
 updateSetupPhase :: [Faction] -> Update Game ()
 updateSetupPhase [] = setPhase $ TurnPhase 0
-updateSetupPhase (next:remaining) = do
-    setupPhase <- case next of 
+updateSetupPhase (next : remaining) = do
+    setupPhase <- case next of
         Marquis -> return $ FactionSetupPhase CatSetupPhase
         _ -> liftErr NotImplemented
     -- Update the base phase
@@ -131,6 +131,7 @@ updateTurnPhase turn = do
     setPhase $ TurnPhase (turn + 1)
     -- Push the turn phase onto the stack
     pushPhase turnPhase
+
 ----------------------------------
 -- Misc Getters
 ----------------------------------

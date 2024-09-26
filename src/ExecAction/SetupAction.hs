@@ -1,5 +1,5 @@
 module ExecAction.SetupAction (
-    execSetupAction
+    execSetupAction,
 ) where
 
 import Control.Monad
@@ -7,12 +7,12 @@ import Control.Monad
 import Lens.Micro
 import Lens.Micro.Mtl
 
-import Root.Types
-import qualified Root.Game as Game
 import qualified Root.Board as Board
-import qualified Root.Marquis as Cat
 import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
+import qualified Root.Game as Game
+import qualified Root.Marquis as Cat
+import Root.Types
 import Types.Default
 import Types.IxTable
 import Util
@@ -73,5 +73,4 @@ execSetupAction CatSetupPhase (CatSetupAction setup) = do
 
         -- Place the building in the clearing
         Game.zoomClearing clearingIx $ Clr.addBuilding building
-
 execSetupAction _ _ = liftErr NotImplemented

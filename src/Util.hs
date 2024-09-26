@@ -23,8 +23,8 @@ module Util (
 import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Writer.Lazy
-import qualified Data.MultiSet as MS
 import Data.Maybe
+import qualified Data.MultiSet as MS
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -110,4 +110,5 @@ headM = listToMaybe
 -- Technicall unsafe but will never error
 indexMod :: Int -> [a] -> a
 indexMod n xs = xs !! n
-    where n' = n `mod` length xs
+  where
+    n' = n `mod` length xs

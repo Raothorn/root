@@ -1,7 +1,7 @@
 module Types.Action (
     Action (..),
-    SetupAction(..),
-    TurnAction(..)
+    SetupAction (..),
+    TurnAction (..),
 ) where
 
 import Types.Faction
@@ -11,10 +11,10 @@ data Action
     | SetupAction SetupAction
     | TurnAction TurnAction
 
-data SetupAction 
+data SetupAction
     = CatSetupAction CatSetup
     | NoSetupAction
 
-data TurnAction 
+data TurnAction
     = MarquisAction CatAction
     | EerieAction BirdAction

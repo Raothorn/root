@@ -3,7 +3,7 @@ module Types.Phase (
     Phase (..),
     DayPhase (..),
     FactionSetupPhase (..),
-    FactionTurnPhase (..)
+    FactionTurnPhase (..),
 ) where
 
 import Types.Default
@@ -13,19 +13,19 @@ import Types.Faction
 -- Types
 ----------------------------------
 data Phase
-    -- Base phases
-    = SetupPhase [Faction]
+    = -- Base phases
+      SetupPhase [Faction]
     | TurnPhase Int
     | FactionSetupPhase FactionSetupPhase
     | FactionTurnPhase FactionTurnPhase
     | NoPhase
     deriving (Show)
 
-data FactionSetupPhase 
+data FactionSetupPhase
     = CatSetupPhase
     deriving (Show)
 
-data FactionTurnPhase 
+data FactionTurnPhase
     = MarquisPhase CatPhase
     | EeriePhase BirdPhase
     deriving (Show)

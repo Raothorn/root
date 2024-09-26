@@ -26,6 +26,7 @@ import Types.LogEvent
 
 debug :: Bool
 debug = False
+
 ----------------------------------
 -- Types
 ----------------------------------
@@ -66,22 +67,22 @@ testCatSetup game = do
     let clearingIxs = (1, 2, 4, 7) & each %~ makeIx
         setupAction = SetupAction $ CatSetupAction clearingIxs
     game <- expect' game $ execAction setupAction
-    
+
     -- Get all the clearings
     [c1, c2, c4, c7] <- eval game $ do
         forM (clearingIxs ^.. each) $ \cIx -> Game.getClearing cIx
-    
+
     -- Verify that the keep is in clearing 1
     assertThat $ tokenInClearing Keep c1
-    
+
     -- Verify that the initial buildings are in the correct clearings
     let clearingBuildings = [(Sawmill, c2), (Workshop, c4), (Recruiter, c7)]
     forM_ clearingBuildings $ \(b, c) -> assertThat $ buildingInClearing b c
-    
+
     -- Verify that all the warriors have been placed
     allClearings <- eval game Game.getClearings
     let oppositeClearingIx = makeIx 10 :: Index Clearing
-    
+
     forM_ allClearings $ \clearing -> do
         let assertion = warriorInClearing CatWarrior clearing
         if getIx clearing == oppositeClearingIx
@@ -107,7 +108,8 @@ expect state f = do
             nothing
         Right ((x, state'), logs) -> do
             when debug $
-                forM_ logs $ \log -> lift $ debugEvent log
+                forM_ logs $
+                    \log -> lift $ debugEvent log
             return (state', x)
 
 expect' :: s -> Update s a -> M s

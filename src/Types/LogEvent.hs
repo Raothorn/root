@@ -36,4 +36,3 @@ debugEvent _ = return ()
 
 debugShowPhaseStack :: Game -> IO ()
 debugShowPhaseStack game = putStrLn $ "Updated phase stack: " <> show (game ^. Game.phaseStack)
-    
