@@ -1,9 +1,10 @@
 module Types.Action (
-    Action(..),
+    Action (..),
 ) where
 
 import Types.Faction
 
 data Action
     = NoAction
-    | Faction FactionAction
+    | MarquisAction CatAction
+    | EerieAction BirdAction

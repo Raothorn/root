@@ -26,11 +26,10 @@ import Types.Game
 import qualified Types.IxTable as I
 import Util
 
-
 ----------------------------------
 -- Zooming
 ----------------------------------
-zoomClearings :: (Monoid a) => Update Clearing a -> Update Game a 
+zoomClearings :: (Monoid a) => Update Clearing a -> Update Game a
 zoomClearings = zoom (board . Board.clearings . I.traverseTable)
 
 zoomClearing :: (Monoid a) => Index Clearing -> Update Clearing a -> Update Game a

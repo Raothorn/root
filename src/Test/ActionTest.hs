@@ -20,7 +20,6 @@ import Test.Tasty.HUnit
 import ExecAction
 import qualified Root.Clearing as Clr
 import qualified Root.Game as Game
-import qualified Root.Marquis as Cat
 import Root.Types
 import Types.IxTable
 
@@ -54,15 +53,13 @@ testCatSetup :: ActionTest
 testCatSetup game = do
     -- Place the keep in the top left corner (1) and the other buildings in the
     -- adjacent clearings (sawmill-2, workshop-4, recruit-7)
-    let clearingIxs = (1, 2, 4, 7)
-        setup = Cat.newCatSetup clearingIxs
-        setupAction = Faction $ MarquisAction $ CatFactionSetup setup
+    let clearingIxs = (1, 2, 4, 7) & each %~ makeIx
+        setupAction = MarquisAction $ CatFactionSetup clearingIxs
     game <- expect' game $ execAction setupAction
 
     -- Get all the clearings
     [c1, c2, c4, c7] <- eval game $ do
-        let cIxs = clearingIxs ^.. each
-        forM cIxs $ \cIx -> Game.getClearing (makeIx cIx)
+        forM (clearingIxs ^.. each) $ \cIx -> Game.getClearing cIx
 
     -- Verify that the keep is in clearing 1
     assertThat $ tokenInClearing Keep c1
@@ -82,6 +79,11 @@ testCatSetup game = do
                 assertNot assertion
             else -- There should be a warrior in every other clearing
                 assertThat assertion
+
+testCatSetupFails :: ActionTest
+testCatSetupFails game = do
+    -- Test that the setup fails when the keep clearing is not a corner
+    nothing
 
 ----------------------------------
 -- Helpers

@@ -34,18 +34,19 @@ import Types.LogEvent
 ----------------------------------
 -- Monad Stack Utilities
 ----------------------------------
-useMaybe :: Error -> SimpleGetter s (Maybe a) -> Update s a
-useMaybe err l = do
-    value <- use l
-    case value of
-        Just v -> return v
-        Nothing -> liftErr err
-
 liftErr :: Error -> Update s a
 liftErr = lift . lift . Left
 
 liftMaybe :: Error -> Maybe a -> Update s a
-liftMaybe err mValue = useMaybe err (to $ const mValue)
+liftMaybe err mValue =
+    case mValue of
+        Just v -> return v
+        Nothing -> liftErr err
+
+useMaybe :: Error -> SimpleGetter s (Maybe a) -> Update s a
+useMaybe err l = do
+    x <- use l
+    liftMaybe err x
 
 logEvent :: LogEvent -> Update s ()
 logEvent event = lift $ writer ((), [event])
@@ -59,12 +60,6 @@ listReturn :: Update s a -> Update s [a]
 listReturn f = do
     x <- f
     return [x]
-
-----------------------------------
--- Failure utitilies
-----------------------------------
-maybeToEither :: Error -> Maybe a -> Either Error a
-maybeToEither err = maybe (Left err) Right
 
 ----------------------------------
 -- Control Utilities

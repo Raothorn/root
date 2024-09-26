@@ -25,6 +25,6 @@ addBuilding building = do
     numSlots <- use buildingSlots
     numBuildings <- use $ buildings . to length
 
-    if numBuildings >= numSlots 
+    if numBuildings >= numSlots
         then liftErr NoFreeBuildingSlots
         else buildings %= (building :)

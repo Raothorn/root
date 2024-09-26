@@ -1,8 +1,8 @@
 module Types.Error (
-    Error(..)
+    Error (..),
 ) where
 
-data Error 
+data Error
     = Error
     | IndexError
     | EmptyPhaseStack

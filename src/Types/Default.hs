@@ -1,5 +1,5 @@
 module Types.Default (
-    Default(..)
+    Default (..),
 ) where
 
 class Default a where

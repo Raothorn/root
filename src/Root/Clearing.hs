@@ -3,5 +3,5 @@ module Root.Clearing (
     module State.ClearingState,
 ) where
 
-import Types.Clearing
 import State.ClearingState
+import Types.Clearing

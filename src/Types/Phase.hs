@@ -21,7 +21,8 @@ data DayPhase = Birdsong | Morning | Evening
 -- Instances
 ----------------------------------
 instance Default Phase where
-  def = NoPhase
+    def = NoPhase
+
 ----------------------------------
 -- Helpers
 ----------------------------------

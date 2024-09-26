@@ -63,7 +63,7 @@ removeWarrior = do
     numWarriors <- use warriors
     fac <- use faction
     if numWarriors > 0
-        then do 
+        then do
             warriors -= 1
             return [getWarrior fac]
         else return []

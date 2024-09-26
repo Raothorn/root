@@ -3,27 +3,21 @@ module ExecAction (
 ) where
 
 import ExecAction.CatAction
-import Root.Types
 import qualified Root.Game as Game
-import Util
+import Root.Types
 
 ----------------------------------
 -- ExecAction
 ----------------------------------
 execAction :: Action -> Update Game ()
-execAction (Faction action) = execFactionAction action
-execAction NoAction = liftErr EmptyTypeEncountered
+execAction action = do
+    phase <- Game.getPhase
+    execAction' phase action
 
-----------------------------------
--- ExecFactionAction
-----------------------------------
--- TODO make phase an argument to this function to make phase
--- checking cleaner
-execFactionAction :: FactionAction -> Update Game ()
-execFactionAction (MarquisAction action) = do
-    currentPhase <- Game.getPhase
-    case currentPhase of
-        MarquisPhase phase -> execCatAction phase action
-        _ -> liftErr NotFactionTurn
-execFactionAction (EerieAction _) = liftErr NotImplemented
-execFactionAction NoFactionAction = liftErr EmptyTypeEncountered
+
+
+
+
+execAction' :: Phase -> Action -> Update Game ()
+execAction' (MarquisPhase phase) (MarquisAction action) = execCatAction phase action
+execAction' _ _ = return ()

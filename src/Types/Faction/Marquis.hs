@@ -13,11 +13,10 @@ module Types.Faction.Marquis (
     sawmillClearing,
     workshopClearing,
     recruiterClearing,
-    -- Constructors
-    newCatSetup,
     -- Helpers
 ) where
 
+import Lens.Micro
 import Lens.Micro.TH
 
 import Types.Card (Card)
@@ -58,35 +57,36 @@ data CatAction
     | CatOverwork
     | CatDraw
 
-data CatSetup = CatSetup 
-    { _keepCorner :: Index Clearing
-    , _sawmillClearing :: Index Clearing
-    , _workshopClearing :: Index Clearing
-    , _recruiterClearing :: Index Clearing
-    }
+-- (Keep, Sawmil, Workshop, Recruiter)
+type CatSetup = (Index Clearing, Index Clearing, Index Clearing, Index Clearing)
 
 ----------------------------------
 -- Instances
 ----------------------------------
 -- TODO verify values
 instance Default CatFaction where
-  def = CatFaction
-    { _common = newFactionCommon Marquis 25
-    , _sawmills = 5
-    , _workshops = 5
-    , _recruiters = 5
-    , _woodTokens = 8
-    }
+    def =
+        CatFaction
+            { _common = newFactionCommon Marquis 25
+            , _sawmills = 5
+            , _workshops = 5
+            , _recruiters = 5
+            , _woodTokens = 8
+            }
 
 ----------------------------------
 -- Lenses
 ----------------------------------
 makeLenses ''CatFaction
-makeLenses ''CatSetup
 
-----------------------------------
--- Constructors
-----------------------------------
-newCatSetup :: (Int, Int, Int, Int) -> CatSetup
-newCatSetup (keep, saw, work, recruit) = 
-    CatSetup (makeIx keep) (makeIx saw) (makeIx work) (makeIx recruit)
+keepCorner :: Lens' CatSetup (Index Clearing)
+keepCorner = _1
+
+sawmillClearing :: Lens' CatSetup (Index Clearing)
+sawmillClearing = _2
+
+workshopClearing :: Lens' CatSetup (Index Clearing)
+workshopClearing = _3
+
+recruiterClearing :: Lens' CatSetup (Index Clearing)
+recruiterClearing = _4

@@ -1,9 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Types.Faction.Eerie (
     -- Types
     BirdFaction,
-    BirdAction(..),
-    BirdPhase(..)
+    BirdAction (..),
+    BirdPhase (..),
     -- Lenses
     -- Constructors
     -- Helpers
@@ -12,8 +13,8 @@ module Types.Faction.Eerie (
 import Lens.Micro.TH
 
 import Types.Card
-import Types.Faction.FactionCommon
 import Types.Default
+import Types.Faction.FactionCommon
 
 ----------------------------------
 -- Types
@@ -50,18 +51,20 @@ data BirdAction
 -- Instances
 ----------------------------------
 instance Default BirdFaction where
-    def = BirdFaction
-        { _common = def
-        , _decree = def
-        }
+    def =
+        BirdFaction
+            { _common = def
+            , _decree = def
+            }
 
 instance Default Decree where
-    def = Decree 
-        { _recruit = []
-        , _move = []
-        , _battle = []
-        , _build = []
-        }
+    def =
+        Decree
+            { _recruit = []
+            , _move = []
+            , _battle = []
+            , _build = []
+            }
 
 ----------------------------------
 -- Lenses

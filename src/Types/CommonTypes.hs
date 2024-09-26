@@ -27,9 +27,9 @@ data Warrior
     | NoWarrior
     deriving (Eq, Show)
 
-data Building 
-    = Sawmill 
-    | Workshop 
+data Building
+    = Sawmill
+    | Workshop
     | Recruiter
     | NoBuilding
     deriving (Eq, Show)

@@ -1,11 +1,12 @@
 module State.MarquisState (
-    takeWoodToken
+    takeWoodToken,
 ) where
 
 import Lens.Micro.Mtl
 
 import Root.Types
 import qualified Types.Faction.Marquis as Cat
+
 ----------------------------------
 -- Stateful functions
 ----------------------------------

@@ -1,6 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
+
 module Types.IxTable (
     IxTable,
     Indexed (..),
@@ -36,11 +37,12 @@ class Indexed a where
     getIx :: a -> Index a
 
 getIx' :: (Indexed a) => a -> Int
-getIx' x = 
+getIx' x =
     let (Index n) = getIx x
-    in n
+    in  n
 
 type ConIx a = Index a -> a
+
 ----------------------------------
 -- Types
 ----------------------------------
@@ -53,18 +55,19 @@ newtype Index a = Index Int
     deriving (Eq, Ord)
 
 makeLenses ''IxTable
+
 ----------------------------------
 -- Instances
 ----------------------------------
 instance Default (Index a) where
-  def = Index 0
+    def = Index 0
 
 instance Functor IxTable where
     fmap f tbl = tbl & contents %~ M.mapKeys changeIndex . fmap f
 
 instance Foldable IxTable where
-  foldr :: (a -> b -> b) -> b -> IxTable a -> b
-  foldr f x tbl = foldr f x (tbl ^. contents)
+    foldr :: (a -> b -> b) -> b -> IxTable a -> b
+    foldr f x tbl = foldr f x (tbl ^. contents)
 
 ----------------------------------
 -- Constructors
@@ -76,8 +79,10 @@ empty :: IxTable a
 empty = IxTable 0 M.empty
 
 createN :: ConIx a -> Int -> Int -> IxTable a
-createN constructor startIx n = foldr (\_ t -> insert' constructor t) initTable [1..n]
-    where initTable = empty & counter .~ startIx
+createN constructor startIx n = foldr (\_ t -> insert' constructor t) initTable [1 .. n]
+  where
+    initTable = empty & counter .~ startIx
+
 ----------------------------------
 -- Insertion
 ----------------------------------
@@ -91,6 +96,7 @@ insert construct table = (table', val)
 
 insert' :: ConIx a -> IxTable a -> IxTable a
 insert' c t = fst $ insert c t
+
 ----------------------------------
 -- Indexing
 ----------------------------------

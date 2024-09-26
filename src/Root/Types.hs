@@ -15,17 +15,16 @@ module Root.Types (
 -- Re-export types. Lenses and helper functions should be imported module-by-module.
 import Types.Action (Action (..))
 import Types.Alias
-import Types.Clearing (Clearing)
 import Types.Card (Card, CardEffect (..))
+import Types.Clearing (Clearing)
 import Types.CommonTypes
 import Types.Error (Error (..))
 import Types.Faction (
+    BirdFaction,
     CatAction (..),
+    CatFaction,
     CatPhase (..),
     Faction (..),
-    FactionAction (..),
-    CatFaction,
-    BirdFaction,
     FactionCommon,
  )
 import Types.Game (Game)

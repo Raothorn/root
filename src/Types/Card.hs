@@ -7,7 +7,7 @@ module Types.Card (
     -- Lenses
     suit,
     craftCost,
-    effect
+    effect,
 ) where
 
 import Lens.Micro.TH
@@ -15,6 +15,7 @@ import Lens.Micro.TH
 import Types.CommonTypes
 import Types.Default
 import Types.IxTable
+
 ----------------------------------
 -- Types
 ----------------------------------
@@ -36,15 +37,17 @@ instance Indexed Card where
     getIx = _index
 
 instance Default Card where
-    def = Card 
-        { _index = def
-        , _suit = def
-        , _craftCost = []
-        , _effect = def
-        }
+    def =
+        Card
+            { _index = def
+            , _suit = def
+            , _craftCost = []
+            , _effect = def
+            }
 
 instance Default CardEffect where
     def = NoEffect
+
 ----------------------------------
 -- Lenses
 ----------------------------------
