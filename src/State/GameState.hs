@@ -1,4 +1,6 @@
 module State.GameState (
+    -- Initialize
+    initialize,
     -- Zooming
     zoomClearings,
     zoomClearing,
@@ -15,7 +17,7 @@ module State.GameState (
     getClearings,
 ) where
 
-import Data.Maybe
+import Control.Monad
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -25,6 +27,18 @@ import qualified Types.Board as Board
 import Types.Game
 import qualified Types.IxTable as I
 import Util
+
+----------------------------------
+-- Initialize
+----------------------------------
+initialize :: [Faction] -> Update Game ()
+initialize factions = do 
+    -- Ensure the phase stack is empty. This should only ever happen with a brand-new Game.
+    stack <- use phaseStack
+    unless (null stack) $ liftErr WrongPhase
+
+    pushPhase $ SetupPhase factions
+    updatePhase
 
 ----------------------------------
 -- Zooming
@@ -52,17 +66,71 @@ zoomBird = zoom (playerFactions . eerie . traversed)
 -- happen in pairs. The easiest way to do this is to use "setPhase"
 -- whenever possible, instead of pushPhase and popPhase
 getPhase :: Update Game Phase
-getPhase = useMaybe EmptyPhaseStack (phaseStack . to listToMaybe)
+getPhase = do
+    stack <- use phaseStack
+    liftMaybe EmptyPhaseStack (headM stack)
 
 setPhase :: Phase -> Update Game ()
-setPhase phase = popPhase >> pushPhase phase
+setPhase phase = popPhase' >> pushPhase phase 
 
 pushPhase :: Phase -> Update Game ()
-pushPhase phase = phaseStack %= (phase :)
+pushPhase phase = do 
+    phaseStack %= (phase :)
+    logEvent $ PhasePushed phase
 
+-- updatePhase should be automatically executed after any pop from outside this module
 popPhase :: Update Game ()
-popPhase = phaseStack %= tail
+popPhase = popPhase' >> updatePhase
 
+popPhase' :: Update Game ()
+popPhase' = do
+    phase <- getPhase
+    phaseStack %= tail 
+    logEvent $ PhasePopped phase
+
+{-
+Certain phases are simply tracking state and aren't advanced by actions. 
+These should be automatically updated behind the scenes.
+-}
+updatePhase :: Update Game () 
+updatePhase = do
+    phase <- getPhase
+    case phase of 
+        SetupPhase factions -> updateSetupPhase factions
+        TurnPhase turn -> updateTurnPhase turn
+        _ -> return ()
+
+{-
+Updates: The next faction to be setup is popped off the list. The phase for that
+particular faction setup is pushed onto the stack. If there are no more remaining
+factions to setup, move onto TurnPhase.
+Example: if the phase stack before execution is [SetupPhase [Marquis, Eeerie]], the 
+phase stack after execution will be [FactionSetupPhase CatSetupPhase, SetupPhase [Eerie]]
+-}
+updateSetupPhase :: [Faction] -> Update Game ()
+updateSetupPhase [] = setPhase $ TurnPhase 0
+updateSetupPhase (next:remaining) = do
+    setupPhase <- case next of 
+        Marquis -> return $ FactionSetupPhase CatSetupPhase
+        _ -> liftErr NotImplemented
+    -- Update the base phase
+    setPhase $ SetupPhase remaining
+    -- Push the setup phase onto the stack
+    pushPhase setupPhase
+
+updateTurnPhase :: Int -> Update Game ()
+updateTurnPhase turn = do
+    factions <- use factionsInPlay
+    let turnFaction = indexMod turn factions
+
+    turnPhase <- case turnFaction of
+        Marquis -> return $ FactionTurnPhase $ MarquisPhase CatPlaceWoodPhase
+        _ -> liftErr NotImplemented
+
+    -- Update the base phase
+    setPhase $ TurnPhase (turn + 1)
+    -- Push the turn phase onto the stack
+    pushPhase turnPhase
 ----------------------------------
 -- Misc Getters
 ----------------------------------

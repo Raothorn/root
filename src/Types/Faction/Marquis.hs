@@ -36,19 +36,20 @@ data CatFaction = CatFaction
     , _recruiters :: Int
     , _woodTokens :: Int
     }
+    deriving (Show)
 
 data CatPhase
-    = CatSetupPhase
-    | CatPlaceWoodPhase
+    = CatPlaceWoodPhase
     | -- parameters: workshopsUsed :: [Suit]
       CatCraftPhase [Suit]
     | -- parameters: actionsLeft :: Int
       CatChooseActionPhase Int
     | CatDrawPhase
+    | CatTurnEndedPhase
+    deriving (Show)
 
 data CatAction
-    = CatFactionSetup CatSetup
-    | CatPlaceWood
+    = CatPlaceWood
     | CatCraft (Index Card)
     | CatBattle
     | CatMarch

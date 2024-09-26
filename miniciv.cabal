@@ -28,6 +28,7 @@ library
       ExecAction
       ExecAction.CatAction
       ExecAction.CommonActions
+      ExecAction.SetupAction
       Lib
       Lookup.BoardLookup
       Lookup.CardLookup

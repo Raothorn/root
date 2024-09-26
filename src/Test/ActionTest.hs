@@ -22,7 +22,10 @@ import qualified Root.Clearing as Clr
 import qualified Root.Game as Game
 import Root.Types
 import Types.IxTable
+import Types.LogEvent
 
+debug :: Bool
+debug = False
 ----------------------------------
 -- Types
 ----------------------------------
@@ -44,7 +47,14 @@ runTest :: String -> ActionTest -> TestTree
 runTest name test = testCase name test'
   where
     -- All of the tests are run with the default forest map
-    test' = void $ runMaybeT (test Game.newForestGame)
+    game = Game.newForestGame
+    test' = void $ runMaybeT (initAndRunTest test game)
+
+initAndRunTest :: ActionTest -> ActionTest
+initAndRunTest test game = do
+    lift $ putStrLn ""
+    game <- expect' game $ Game.initialize [Marquis]
+    test game
 
 ----------------------------------
 -- Tests
@@ -54,24 +64,24 @@ testCatSetup game = do
     -- Place the keep in the top left corner (1) and the other buildings in the
     -- adjacent clearings (sawmill-2, workshop-4, recruit-7)
     let clearingIxs = (1, 2, 4, 7) & each %~ makeIx
-        setupAction = MarquisAction $ CatFactionSetup clearingIxs
+        setupAction = SetupAction $ CatSetupAction clearingIxs
     game <- expect' game $ execAction setupAction
-
+    
     -- Get all the clearings
     [c1, c2, c4, c7] <- eval game $ do
         forM (clearingIxs ^.. each) $ \cIx -> Game.getClearing cIx
-
+    
     -- Verify that the keep is in clearing 1
     assertThat $ tokenInClearing Keep c1
-
+    
     -- Verify that the initial buildings are in the correct clearings
     let clearingBuildings = [(Sawmill, c2), (Workshop, c4), (Recruiter, c7)]
     forM_ clearingBuildings $ \(b, c) -> assertThat $ buildingInClearing b c
-
+    
     -- Verify that all the warriors have been placed
     allClearings <- eval game Game.getClearings
     let oppositeClearingIx = makeIx 10 :: Index Clearing
-
+    
     forM_ allClearings $ \clearing -> do
         let assertion = warriorInClearing CatWarrior clearing
         if getIx clearing == oppositeClearingIx
@@ -95,7 +105,9 @@ expect state f = do
         Left err -> do
             lift $ assertString $ "Expected a valid result, but got an error: " <> show err
             nothing
-        Right ((x, state'), _) -> do
+        Right ((x, state'), logs) -> do
+            when debug $
+                forM_ logs $ \log -> lift $ debugEvent log
             return (state', x)
 
 expect' :: s -> Update s a -> M s

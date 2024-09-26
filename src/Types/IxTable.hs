@@ -59,6 +59,10 @@ makeLenses ''IxTable
 ----------------------------------
 -- Instances
 ----------------------------------
+instance Show (Index a) where
+  show (Index n) = show n
+
+
 instance Default (Index a) where
     def = Index 0
 

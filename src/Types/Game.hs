@@ -10,9 +10,12 @@ module Types.Game (
     playerFactions,
     marquis,
     eerie,
+    factionsInPlay,
     -- Constructors
     newForestGame,
 ) where
+
+import Data.Maybe
 
 import Lens.Micro
 import Lens.Micro.TH
@@ -46,7 +49,7 @@ instance Default PlayerFactions where
 instance Default Game where
     def =
         Game
-            { _phaseStack = [MarquisPhase CatSetupPhase]
+            { _phaseStack = []
             , _board = def
             , _playerFactions = def
             }
@@ -56,6 +59,14 @@ instance Default Game where
 ----------------------------------
 makeLenses ''Game
 makeLenses ''PlayerFactions
+
+factionsInPlay :: SimpleGetter Game [Faction]
+factionsInPlay = to factionsInPlay'
+  where
+    factionsInPlay' game =
+        let cat = fmap (const Marquis) $ game ^. playerFactions . marquis
+            bird = fmap (const Eerie) $ game ^. playerFactions . eerie
+        in  catMaybes [cat, bird]
 
 ----------------------------------
 -- Constructors
