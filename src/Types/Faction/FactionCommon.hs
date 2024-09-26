@@ -27,6 +27,7 @@ data Faction
     = Marquis
     | Eerie
     | NoFaction
+    deriving (Show)
 
 data FactionCommon = FactionCommon
     { _faction :: Faction
@@ -34,6 +35,7 @@ data FactionCommon = FactionCommon
     , _hand :: [Index Card]
     , _victoryPoints :: Int
     }
+    deriving (Show)
 
 ----------------------------------
 -- Instances

@@ -13,7 +13,7 @@ module Root.Types (
 ) where
 
 -- Re-export types. Lenses and helper functions should be imported module-by-module.
-import Types.Action (Action (..))
+import Types.Action (Action (..), SetupAction (..), TurnAction (..))
 import Types.Alias
 import Types.Card (Card, CardEffect (..))
 import Types.Clearing (Clearing)
@@ -30,4 +30,4 @@ import Types.Faction (
 import Types.Game (Game)
 import Types.IxTable (ConIx, Index, Indexed (..), IxTable ())
 import Types.LogEvent (LogEvent (..))
-import Types.Phase (DayPhase (..), Phase (..))
+import Types.Phase (DayPhase (..), FactionSetupPhase (..), FactionTurnPhase (..), Phase (..))

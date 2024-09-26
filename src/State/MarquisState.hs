@@ -11,9 +11,9 @@ import qualified Types.Faction.Marquis as Cat
 -- Stateful functions
 ----------------------------------
 {-
-    Parameters: none
-    Errors: none
-    Returns: either an empty list or a list containing a single wood token.
+Parameters: none
+Errors: none
+Returns: either an empty list or a list containing a single wood token.
 -}
 takeWoodToken :: Update CatFaction [Token]
 takeWoodToken = do

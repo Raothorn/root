@@ -25,10 +25,12 @@ data Card = Card
     , _craftCost :: [Suit]
     , _effect :: CardEffect
     }
+    deriving (Show)
 
 data CardEffect
     = VictoryPoints Int
     | NoEffect
+    deriving (Show)
 
 ----------------------------------
 -- Instances

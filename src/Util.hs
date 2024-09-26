@@ -16,11 +16,14 @@ module Util (
     -- List
     bagDifference,
     bagSubsetOf,
+    headM,
+    indexMod,
 ) where
 
 import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Writer.Lazy
+import Data.Maybe
 import qualified Data.MultiSet as MS
 
 import Lens.Micro
@@ -100,3 +103,12 @@ bagSubsetOf l1 l2 = MS.isSubsetOf l1' l2'
   where
     l1' = MS.fromList l1
     l2' = MS.fromList l2
+
+headM :: [a] -> Maybe a
+headM = listToMaybe
+
+-- Technicall unsafe but will never error
+indexMod :: Int -> [a] -> a
+indexMod n xs = xs !! n
+  where
+    n' = n `mod` length xs

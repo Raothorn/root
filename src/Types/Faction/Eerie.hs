@@ -23,6 +23,7 @@ data BirdFaction = BirdFaction
     { _common :: FactionCommon
     , _decree :: Decree
     }
+    deriving (Show)
 
 data Decree = Decree
     { _recruit :: [Card]
@@ -30,6 +31,7 @@ data Decree = Decree
     , _battle :: [Card]
     , _build :: [Card]
     }
+    deriving (Show)
 
 data BirdPhase
     = BirdFirstDrawPhase
@@ -38,6 +40,7 @@ data BirdPhase
     | BirdCraftPhase
     | BirdResolveDecreePhase
     | BirdSecondDrawPhase
+    deriving (Show)
 
 data BirdAction
     = BirdDraw
@@ -46,6 +49,7 @@ data BirdAction
     | BirdCraft
     | BirdTakeDecreeAction
     | BirdDrawAndDiscard
+    deriving (Show)
 
 ----------------------------------
 -- Instances

@@ -3,8 +3,10 @@ module ExecAction (
 ) where
 
 import ExecAction.CatAction
+import ExecAction.SetupAction
 import qualified Root.Game as Game
 import Root.Types
+import Util
 
 ----------------------------------
 -- ExecAction
@@ -14,10 +16,15 @@ execAction action = do
     phase <- Game.getPhase
     execAction' phase action
 
-
-
-
-
 execAction' :: Phase -> Action -> Update Game ()
-execAction' (MarquisPhase phase) (MarquisAction action) = execCatAction phase action
-execAction' _ _ = return ()
+execAction' (FactionSetupPhase phase) (SetupAction action) = do
+    execSetupAction phase action
+    Game.popPhase
+execAction' (FactionTurnPhase phase) (TurnAction action) = do
+    execTurnAction phase action
+execAction' _ _ = liftErr WrongPhase
+
+-- It is the responsibliity of the individual action dispatchers to pop the turn phase
+execTurnAction :: FactionTurnPhase -> TurnAction -> Update Game ()
+execTurnAction (MarquisPhase phase) (MarquisAction action) = execCatAction phase action
+execTurnAction _ _ = liftErr WrongPhase

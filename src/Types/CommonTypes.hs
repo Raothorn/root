@@ -13,7 +13,7 @@ import Types.Default
 -- Types
 ----------------------------------
 data Suit = Mouse | Fox | Rabbit | Bird | NoSuit
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Show)
 
 data Token
     = Wood
