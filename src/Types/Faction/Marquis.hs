@@ -19,6 +19,7 @@ module Types.Faction.Marquis (
 import Lens.Micro
 import Lens.Micro.TH
 
+import Parameters as P
 import Types.Card (Card)
 import Types.Clearing (Clearing)
 import Types.CommonTypes
@@ -64,15 +65,15 @@ type CatSetup = (Index Clearing, Index Clearing, Index Clearing, Index Clearing)
 ----------------------------------
 -- Instances
 ----------------------------------
--- TODO verify values
+-- TODO move values to the Parameters module
 instance Default CatFaction where
     def =
         CatFaction
-            { _common = newFactionCommon Marquis 25
-            , _sawmills = 5
-            , _workshops = 5
-            , _recruiters = 5
-            , _woodTokens = 8
+            { _common = newFactionCommon Marquis P.catWarriorSupply
+            , _sawmills = P.catSawmills
+            , _workshops = P.catWorkshops
+            , _recruiters = P.catRecruiters
+            , _woodTokens = P.catWoodTokens
             }
 
 ----------------------------------

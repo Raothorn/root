@@ -11,6 +11,7 @@ data Error
     | WrongPhase
     | NoActionsRemaining
     | NotFactionTurn
+    | FactionNotInPlay
     | CannotAffordCraft
     | CardNotInHand
     | NotCornerClearing

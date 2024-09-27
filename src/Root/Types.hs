@@ -2,6 +2,7 @@ module Root.Types (
     module Types.Clearing,
     module Types.Alias,
     module Types.Game,
+    module Types.Default,
     module Types.Faction,
     module Types.Action,
     module Types.Card,
@@ -18,6 +19,7 @@ import Types.Alias
 import Types.Card (Card, CardEffect (..))
 import Types.Clearing (Clearing)
 import Types.CommonTypes
+import Types.Default
 import Types.Error (Error (..))
 import Types.Faction (
     BirdFaction,

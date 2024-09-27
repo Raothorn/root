@@ -4,12 +4,9 @@ module State.FactionCommonState (
     removeWarrior,
 ) where
 
-import Control.Monad
-
 import Lens.Micro
 import Lens.Micro.Mtl
 
-import Lookup.CardLookup
 import Root.Types
 import qualified Types.Card as Card
 import Types.Faction.FactionCommon
@@ -42,15 +39,12 @@ Parameters:
     `cardIx :: Index Card` - the index of the card to remove
 Errors: `CardNotInHand` if the card is not present in `hand`
 Updates: The card is no longer in the hand
-Returns: The card data associated with the card index
 -}
-removeCard :: Index Card -> Update FactionCommon Card
+removeCard :: Index Card -> Update FactionCommon ()
 removeCard cardIx = do
     curHand <- use hand
     if cardIx `elem` curHand
-        then do
-            hand %= filter (/= cardIx)
-            return $ lookupCard cardIx
+        then hand %= filter (/= cardIx)
         else liftErr CardNotInHand
 
 {-

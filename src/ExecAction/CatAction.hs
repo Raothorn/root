@@ -12,7 +12,6 @@ import qualified Root.Card as Card
 import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
-import Root.Lookup
 import qualified Root.Marquis as Cat
 import Root.Types
 import Util
@@ -74,14 +73,15 @@ execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
     let craftingSuits = bagDifference workshopSuits workshopsUsed
 
     -- Get the cost of the card
-    let cardCost = lookupCard cardIx ^. Card.craftCost
+    card <- Game.lookupCard cardIx
+    let cardCost = card ^. Card.craftCost
 
     -- Ensure the Marquis has enough remaining workshops to craft the card
     if bagSubsetOf cardCost craftingSuits
         then do
             Game.zoomCat $ zoom Cat.common $ do
                 -- Remove the card from the Marquis' hand
-                card <- Com.removeCard cardIx
+                Com.removeCard cardIx
                 -- Craft the card
                 Com.craftCard card
 

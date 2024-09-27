@@ -32,11 +32,13 @@ library
       Lib
       Lookup.BoardLookup
       Lookup.CardLookup
+      Parameters
       Root.Board
       Root.Card
       Root.Clearing
       Root.FactionCommon
       Root.Game
+      Root.IxTable
       Root.Lookup
       Root.Marquis
       Root.Types
@@ -46,6 +48,7 @@ library
       State.GameState
       State.MarquisState
       Test.ActionTest
+      Test.TestSetup
       Types.Action
       Types.Alias
       Types.Board

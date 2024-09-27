@@ -51,6 +51,9 @@ data Clearing = Clearing
 instance Indexed Clearing where
     getIx = _index
 
+instance Show Clearing where
+    show clearing = "Clearing " <> show (getIx clearing)
+
 ----------------------------------
 -- Constructors
 ----------------------------------

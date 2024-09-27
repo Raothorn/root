@@ -11,6 +11,7 @@ module Types.Game (
     marquis,
     eerie,
     factionsInPlay,
+    cardLookup,
     -- Constructors
     newForestGame,
 ) where
@@ -21,9 +22,12 @@ import Lens.Micro
 import Lens.Micro.TH
 
 import Lookup.BoardLookup
+import Lookup.CardLookup
 import Types.Board
+import Types.Card
 import Types.Default
 import Types.Faction
+import Types.IxTable
 import Types.Phase
 
 ----------------------------------
@@ -33,6 +37,8 @@ data Game = Game
     { _phaseStack :: [Phase]
     , _board :: Board
     , _playerFactions :: PlayerFactions
+    , -- Swappable lookup functions
+      _cardLookup :: Index Card -> Card
     }
 
 data PlayerFactions = PlayerFactions
@@ -52,6 +58,7 @@ instance Default Game where
             { _phaseStack = []
             , _board = def
             , _playerFactions = def
+            , _cardLookup = lookupCard
             }
 
 ----------------------------------

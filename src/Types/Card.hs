@@ -8,6 +8,8 @@ module Types.Card (
     suit,
     craftCost,
     effect,
+    -- Constructors
+    newCard,
 ) where
 
 import Lens.Micro.TH
@@ -54,3 +56,9 @@ instance Default CardEffect where
 -- Lenses
 ----------------------------------
 makeLenses ''Card
+
+----------------------------------
+-- Constructors
+----------------------------------
+newCard :: Suit -> [Suit] -> CardEffect -> Index Card -> Card
+newCard s c e i = Card{_index = i, _suit = s, _craftCost = c, _effect = e}

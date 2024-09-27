@@ -13,8 +13,10 @@ module State.GameState (
     pushPhase,
     popPhase,
     -- Misc getters
+    lookupCard,
     getClearing,
     getClearings,
+    getWarriorSupply,
 ) where
 
 import Control.Monad
@@ -24,6 +26,8 @@ import Lens.Micro.Mtl
 
 import Root.Types
 import qualified Types.Board as Board
+import qualified Types.Faction.FactionCommon as Com
+import qualified Types.Faction.Marquis as Cat
 import Types.Game
 import qualified Types.IxTable as I
 import Util
@@ -108,7 +112,9 @@ Example: if the phase stack before execution is [SetupPhase [Marquis, Eeerie]], 
 phase stack after execution will be [FactionSetupPhase CatSetupPhase, SetupPhase [Eerie]]
 -}
 updateSetupPhase :: [Faction] -> Update Game ()
-updateSetupPhase [] = setPhase $ TurnPhase 0
+updateSetupPhase [] = do
+    setPhase $ TurnPhase 0
+    updateTurnPhase 0
 updateSetupPhase (next : remaining) = do
     setupPhase <- case next of
         Marquis -> return $ FactionSetupPhase CatSetupPhase
@@ -127,7 +133,7 @@ updateTurnPhase turn = do
         Marquis -> return $ FactionTurnPhase $ MarquisPhase CatPlaceWoodPhase
         _ -> liftErr NotImplemented
 
-    -- Update the base phase
+    -- Update the base phase for the next turn
     setPhase $ TurnPhase (turn + 1)
     -- Push the turn phase onto the stack
     pushPhase turnPhase
@@ -135,8 +141,25 @@ updateTurnPhase turn = do
 ----------------------------------
 -- Misc Getters
 ----------------------------------
+-- Lookup
+lookupCard :: Index Card -> Update Game Card
+lookupCard cardIx = do
+    f <- use cardLookup
+    return $ f cardIx
+
 getClearing :: Index Clearing -> Update Game Clearing
 getClearing clearingIx = useMaybe IndexError (board . Board.clearings . I.atTable clearingIx)
 
 getClearings :: Update Game [Clearing]
 getClearings = use $ board . Board.clearings . to I.values
+
+getWarriorSupply :: Faction -> Update Game Int
+getWarriorSupply faction = do
+    common <- getFactionCommon faction
+    return $ common ^. Com.warriors
+
+getFactionCommon :: Faction -> Update Game FactionCommon
+getFactionCommon Marquis = do
+    common <- preuse $ playerFactions . marquis . traversed . Cat.common
+    liftMaybe FactionNotInPlay common
+getFactionCommon _ = liftErr NotImplemented

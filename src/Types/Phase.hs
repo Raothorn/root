@@ -16,7 +16,8 @@ data Phase
     = -- Base phases
       SetupPhase [Faction]
     | TurnPhase Int
-    | FactionSetupPhase FactionSetupPhase
+    | -- Other phases
+      FactionSetupPhase FactionSetupPhase
     | FactionTurnPhase FactionTurnPhase
     | NoPhase
     deriving (Show)
