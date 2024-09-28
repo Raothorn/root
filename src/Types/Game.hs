@@ -112,7 +112,8 @@ allClearings :: Traversal' Game Clearing
 allClearings = board . Board.clearings . traversed
 
 allClearingIxs :: SimpleGetter Game [Index Clearing]
-allClearingIxs = to (map I.getIx . toListOf allClearings) 
+allClearingIxs = to (map I.getIx . toListOf allClearings)
+
 ----------------------------------
 -- Constructors
 ----------------------------------

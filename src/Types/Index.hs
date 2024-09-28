@@ -8,7 +8,7 @@ module Types.Index (
     Index,
     IxList,
     getIx',
-    -- Lenses 
+    -- Lenses
     ixList,
     -- COnstructors
     makeIx,

@@ -30,8 +30,8 @@ import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import Root.Types
 import Test.TestSetup
-import Types.LogEvent
 import Types.Index
+import Types.LogEvent
 
 debug :: Bool
 debug = False
