@@ -18,4 +18,5 @@ data Error
     | NoFreeBuildingSlots
     | EmptySupply
     | InvalidBuildingLocation
+    | TraversalError
     deriving (Show, Eq)

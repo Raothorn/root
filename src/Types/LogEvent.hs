@@ -3,19 +3,16 @@ module Types.LogEvent (
     debugEvent,
 ) where
 
-import Lens.Micro
-
 import Types.Card (Card)
 import Types.Clearing (Clearing)
 import Types.Faction (Faction)
-import Types.Game (Game)
-import qualified Types.Game as Game
 import Types.IxTable (Index)
 import Types.Phase
 
 data LogEvent
     = -- General events
-      CardCrafted (Index Card) Faction
+      CardGained (Index Card) Faction
+    | CardCrafted (Index Card) Faction
     | GainedVictoryPoints Int
     | -- Cat events
       WoodPlaced (Index Clearing)
@@ -33,6 +30,3 @@ debugEvent (PhasePushed phase) = do
 debugEvent (PhasePopped phase) = do
     putStrLn $ "The phase " <> show phase <> " was popped from the stack."
 debugEvent _ = return ()
-
-debugShowPhaseStack :: Game -> IO ()
-debugShowPhaseStack game = putStrLn $ "Updated phase stack: " <> show (game ^. Game.phaseStack)

@@ -12,6 +12,12 @@ module Types.Game (
     eerie,
     factionsInPlay,
     cardLookup,
+    catFaction,
+    birdFaction,
+    factionCommon,
+    clearingAt,
+    allClearingIxs,
+    traverseClearings,
     -- Constructors
     newForestGame,
 ) where
@@ -23,12 +29,17 @@ import Lens.Micro.TH
 
 import Lookup.BoardLookup
 import Lookup.CardLookup
-import Types.Board
+import Types.Board (Board)
+import qualified Types.Board as Board
 import Types.Card
+import Types.Clearing (Clearing)
 import Types.Default
-import Types.Faction
-import Types.IxTable
-import Types.Phase
+import Types.Faction (BirdFaction, CatFaction, Faction (..), FactionCommon)
+import qualified Types.Faction.Eerie as Bird
+import qualified Types.Faction.Marquis as Cat
+import Types.IxTable (Index)
+import qualified Types.IxTable as I
+import Types.Phase (Phase)
 
 ----------------------------------
 -- Type
@@ -67,6 +78,9 @@ instance Default Game where
 makeLenses ''Game
 makeLenses ''PlayerFactions
 
+----------------------------------
+-- Factions
+----------------------------------
 factionsInPlay :: SimpleGetter Game [Faction]
 factionsInPlay = to factionsInPlay'
   where
@@ -74,6 +88,31 @@ factionsInPlay = to factionsInPlay'
         let cat = fmap (const Marquis) $ game ^. playerFactions . marquis
             bird = fmap (const Eerie) $ game ^. playerFactions . eerie
         in  catMaybes [cat, bird]
+
+catFaction :: Traversal' Game CatFaction
+catFaction = playerFactions . marquis . _Just
+
+birdFaction :: Traversal' Game BirdFaction
+birdFaction = playerFactions . eerie . _Just
+
+----------------------------------
+-- FactionCommon
+----------------------------------
+factionCommon :: Faction -> Traversal' Game FactionCommon
+factionCommon Marquis = catFaction . Cat.marquisCommon
+factionCommon Eerie = birdFaction . Bird.eerieCommon
+
+----------------------------------
+-- Board
+----------------------------------
+clearingAt :: Index Clearing -> Traversal' Game Clearing
+clearingAt i = board . Board.clearings . I.ixTable i
+
+allClearingIxs :: SimpleGetter Game [Index Clearing]
+allClearingIxs = board . Board.clearings . to I.values . to (map I.getIx)
+
+traverseClearings :: Traversal' Game Clearing
+traverseClearings = board . Board.clearings . I.traverseTable
 
 ----------------------------------
 -- Constructors

@@ -1,22 +1,22 @@
 module State.GameState (
     -- Initialize
     initialize,
-    -- Zooming
-    zoomClearings,
-    zoomClearing,
-    zoomClearing',
-    zoomCat,
-    zoomBird,
+    -- Common Actions
+    placeWarrior,
+    giveCard,
     -- Phase
     getPhase,
     setPhase,
     pushPhase,
     popPhase,
-    -- Misc getters
+    -- Lookup
     lookupCard,
+    -- Getters
     getClearing,
-    getClearings,
-    getWarriorSupply,
+    getClearingsWhere,
+    getFactionCommon,
+    getHandCard,
+    getVps,
 ) where
 
 import Control.Monad
@@ -24,12 +24,10 @@ import Control.Monad
 import Lens.Micro
 import Lens.Micro.Mtl
 
+import qualified Root.Clearing as Clr
+import qualified Root.FactionCommon as Com
 import Root.Types
-import qualified Types.Board as Board
-import qualified Types.Faction.FactionCommon as Com
-import qualified Types.Faction.Marquis as Cat
 import Types.Game
-import qualified Types.IxTable as I
 import Util
 
 ----------------------------------
@@ -45,22 +43,18 @@ initialize factions = do
     updatePhase
 
 ----------------------------------
--- Zooming
+-- Common Actions
 ----------------------------------
-zoomClearings :: (Monoid a) => Update Clearing a -> Update Game a
-zoomClearings = zoom (board . Board.clearings . I.traverseTable)
+placeWarrior :: Faction -> Index Clearing -> Update Game ()
+placeWarrior faction clearingIx = do
+    warrior <- zoomT (factionCommon faction) Com.removeWarrior
 
-zoomClearing :: (Monoid a) => Index Clearing -> Update Clearing a -> Update Game a
-zoomClearing i = zoom (board . Board.clearings . I.ixTable i)
+    forM_ warrior $ \w ->
+        zoom (clearingAt clearingIx) $ Clr.addWarrior w
 
-zoomClearing' :: (Monoid a) => Clearing -> Update Clearing a -> Update Game a
-zoomClearing' = zoomClearing . getIx
-
-zoomCat :: (Monoid a) => Update CatFaction a -> Update Game a
-zoomCat = zoom (playerFactions . marquis . traversed)
-
-zoomBird :: (Monoid a) => Update BirdFaction a -> Update Game a
-zoomBird = zoom (playerFactions . eerie . traversed)
+giveCard :: Faction -> Index Card -> Update Game ()
+giveCard faction cardIx = do
+    zoom (factionCommon faction) $ Com.addCard cardIx
 
 ----------------------------------
 -- Phase
@@ -139,27 +133,37 @@ updateTurnPhase turn = do
     pushPhase turnPhase
 
 ----------------------------------
--- Misc Getters
-----------------------------------
 -- Lookup
+----------------------------------
 lookupCard :: Index Card -> Update Game Card
 lookupCard cardIx = do
     f <- use cardLookup
     return $ f cardIx
 
+----------------------------------
+-- Misc. Getters
+----------------------------------
+-- Lifting various failable traversals into the monadic context
 getClearing :: Index Clearing -> Update Game Clearing
-getClearing clearingIx = useMaybe IndexError (board . Board.clearings . I.atTable clearingIx)
+getClearing i = liftTraversal IndexError $ clearingAt i
 
-getClearings :: Update Game [Clearing]
-getClearings = use $ board . Board.clearings . to I.values
-
-getWarriorSupply :: Faction -> Update Game Int
-getWarriorSupply faction = do
-    common <- getFactionCommon faction
-    return $ common ^. Com.warriors
+getClearingsWhere :: (Clearing -> Bool) -> Update Game [Index Clearing]
+getClearingsWhere p = do
+    zoom (traverseClearings . filtered p) $ do
+        index <- use Clr.index
+        return [index]
 
 getFactionCommon :: Faction -> Update Game FactionCommon
-getFactionCommon Marquis = do
-    common <- preuse $ playerFactions . marquis . traversed . Cat.common
-    liftMaybe FactionNotInPlay common
-getFactionCommon _ = liftErr NotImplemented
+getFactionCommon faction = liftTraversal FactionNotInPlay $ factionCommon faction
+
+getHandCard :: Faction -> Index Card -> Update Game Card
+getHandCard faction cardIx = do
+    hand <- use $ factionCommon faction . Com.hand
+    if cardIx `elem` hand
+        then lookupCard cardIx
+        else liftErr CardNotInHand
+
+getVps :: Faction -> Update Game Int
+getVps faction =
+    liftTraversal FactionNotInPlay $
+        factionCommon faction . Com.victoryPoints

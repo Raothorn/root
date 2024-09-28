@@ -3,6 +3,7 @@ module ExecAction.SetupAction (
 ) where
 
 import Control.Monad
+import Data.List ((\\))
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -13,7 +14,6 @@ import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import qualified Root.Marquis as Cat
 import Root.Types
-import Types.Default
 import Types.IxTable
 import Util
 
@@ -40,24 +40,18 @@ execSetupAction CatSetupPhase (CatSetupAction setup) = do
     -- Initilize the faction (steps 1 and 5)
     Game.playerFactions . Game.marquis ?= def
 
-    -- Verify that the chosen keep clearing is a corner clearing
-    keepClearing <-
-        useMaybe IndexError $
-            Game.board . Board.clearings . atTable (setup ^. Cat.keepCorner)
-
-    -- If oppositeCorner == Nothing, it is not a corner clearing
-    oppositeClearing <- liftMaybe NotCornerClearing (keepClearing ^. Clr.oppositeCorner)
+    -- Get the opposite corner of the keep clearing
+    let keepCorner = setup ^. Cat.keepCorner
+    -- This will error if it is not a corner clearing
+    oppositeCorner <- zoomT (Game.clearingAt keepCorner) Clr.getOppositeCorner
 
     -- Place the keep token in the chosen clearing
-    Game.zoomClearing' keepClearing $ Clr.addToken Keep
+    zoom (Game.clearingAt keepCorner) $ Clr.addToken Keep
 
     -- Place a warrior in each clearing except the opposite one
-    allClearings <- use $ Game.board . Board.clearings . to values
-    forM_ allClearings $ \clearing -> do
-        when (getIx clearing /= oppositeClearing) $ do
-            warrior <- Game.zoomCat $ zoom Cat.common Com.removeWarrior
-            forM_ warrior $ \w ->
-                Game.zoomClearing' clearing $ Clr.addWarrior w
+    allClearings <- use Game.allClearingIxs
+    let warriorClearings = allClearings \\ [oppositeCorner]
+    forM_ warriorClearings $ \clearing -> Game.placeWarrior Marquis clearing
 
     -- Place starting buildings
     let buildings =
@@ -65,12 +59,11 @@ execSetupAction CatSetupPhase (CatSetupAction setup) = do
             , (Workshop, setup ^. Cat.workshopClearing)
             , (Recruiter, setup ^. Cat.recruiterClearing)
             ]
-
     forM_ buildings $ \(building, clearingIx) -> do
-        -- Verify the chosen clearing is the keep clearing or adjacent to it
-        let isValid = clearingIx == getIx keepClearing || Clr.isAdjacent keepClearing clearingIx
-        unless isValid $ liftErr InvalidBuildingLocation
-
-        -- Place the building in the clearing
-        Game.zoomClearing clearingIx $ Clr.addBuilding building
+        zoomT (Game.clearingAt clearingIx) $ do
+            -- Check that the building can be placed in the clearing
+            isAdjacent <- Clr.isAdjacent keepCorner
+            unless (clearingIx == keepCorner || isAdjacent) $ liftErr InvalidBuildingLocation
+            -- Place the building in the clearing
+            Clr.addBuilding building
 execSetupAction _ _ = liftErr NotImplemented

@@ -6,6 +6,7 @@ module Types.Faction.Eerie (
     BirdAction (..),
     BirdPhase (..),
     -- Lenses
+    eerieCommon,
     -- Constructors
     -- Helpers
 ) where
@@ -20,7 +21,7 @@ import Types.Faction.FactionCommon
 -- Types
 ----------------------------------
 data BirdFaction = BirdFaction
-    { _common :: FactionCommon
+    { _eerieCommon :: FactionCommon
     , _decree :: Decree
     }
     deriving (Show)
@@ -57,7 +58,7 @@ data BirdAction
 instance Default BirdFaction where
     def =
         BirdFaction
-            { _common = def
+            { _eerieCommon = def
             , _decree = def
             }
 

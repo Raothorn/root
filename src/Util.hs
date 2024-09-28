@@ -5,8 +5,10 @@ module Util (
     useMaybe,
     liftErr,
     liftMaybe,
+    liftTraversal,
+    liftUpdate,
     logEvent,
-    listReturn,
+    zoomT,
     -- Control
     whenM,
     -- IxTable
@@ -22,6 +24,7 @@ module Util (
 
 import Control.Monad
 import Control.Monad.Trans.Class
+import Control.Monad.Trans.State.Lazy
 import Control.Monad.Trans.Writer.Lazy
 import Data.Maybe
 import qualified Data.MultiSet as MS
@@ -51,18 +54,22 @@ useMaybe err l = do
     x <- use l
     liftMaybe err x
 
+liftTraversal :: Error -> Traversal' s a -> Update s a
+liftTraversal err l = do
+    x <- preuse l
+    liftMaybe err x
+
 logEvent :: LogEvent -> Update s ()
 logEvent event = lift $ writer ((), [event])
 
-{-
-Notes: Since the monoid instance of Maybe doesn't really work, we wrap with a list
-as a workaround for any stateful function with a non-empty, non-monoidal return type
-so that we can easily use these within a "zoomed" context.
--}
-listReturn :: Update s a -> Update s [a]
-listReturn f = do
-    x <- f
-    return [x]
+zoomT :: Traversal' s a -> Update a b -> Update s b
+zoomT l f = do
+    result <- zoom l $ pure <$> f
+    liftMaybe TraversalError (listToMaybe result)
+
+-- Lifts an aribtrary function on the state to the Update monad
+liftUpdate :: (s -> a) -> Update s a
+liftUpdate f = f <$> get
 
 ----------------------------------
 -- Control Utilities
@@ -107,8 +114,8 @@ bagSubsetOf l1 l2 = MS.isSubsetOf l1' l2'
 headM :: [a] -> Maybe a
 headM = listToMaybe
 
--- Technicall unsafe but will never error
+-- Technically unsafe but will never error
 indexMod :: Int -> [a] -> a
-indexMod n xs = xs !! n
+indexMod n xs = xs !! n'
   where
     n' = n `mod` length xs

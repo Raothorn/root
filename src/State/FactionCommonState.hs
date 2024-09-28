@@ -1,4 +1,5 @@
 module State.FactionCommonState (
+    addCard,
     craftCard,
     removeCard,
     removeWarrior,
@@ -15,6 +16,12 @@ import Util
 ----------------------------------
 -- Stateful functions
 ----------------------------------
+addCard :: Index Card -> Update FactionCommon ()
+addCard cardIx = do
+    hand %= (cardIx :)
+    fac <- use faction
+    logEvent $ CardGained cardIx fac
+
 {-
 Parameters:
     card :: Card - the card the faction is crafting
@@ -52,18 +59,17 @@ Parameters: None
 Updates: One warrior is removed from the supply, if there are any
 Returns: A list containing a single warrior, or an empty list if the supply is empty
 -}
-removeWarrior :: Update FactionCommon [Warrior]
+removeWarrior :: Update FactionCommon (Maybe Warrior)
 removeWarrior = do
     numWarriors <- use warriors
     fac <- use faction
     if numWarriors > 0
         then do
             warriors -= 1
-            return [getWarrior fac]
-        else return []
+            return $ Just (getWarrior fac)
+        else return Nothing
   where
     getWarrior fac =
         case fac of
             Marquis -> CatWarrior
             Eerie -> BirdWarrior
-            _ -> NoWarrior

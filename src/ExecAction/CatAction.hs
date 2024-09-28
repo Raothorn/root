@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Redundant bracket" #-}
 module ExecAction.CatAction (
     execCatAction,
 ) where
@@ -7,7 +10,6 @@ import Control.Monad
 import Lens.Micro
 import Lens.Micro.Mtl
 
-import qualified Root.Board as Board
 import qualified Root.Card as Card
 import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
@@ -32,18 +34,17 @@ execCatAction :: CatPhase -> CatAction -> Update Game ()
 ----------------------------------
 execCatAction CatPlaceWoodPhase CatPlaceWood = do
     -- Get all the clearings with a sawmill
-    sawmillClearings <-
-        zoom Game.board $
-            Board.getClearingsP (Clr.hasBuilding Sawmill)
+    sawmillClearings <- Game.getClearingsWhere (Clr.hasBuilding Sawmill)
 
     forM_ sawmillClearings $ \clearing -> do
         -- Take a wood token, if possible
-        woodToken <- Game.zoomCat Cat.takeWoodToken
+        woodToken <- zoom Game.catFaction Cat.takeWoodToken
 
         -- Place the wood token in the clearing
         forM_ woodToken $ \w -> do
-            Game.zoomClearing' clearing (Clr.addToken w)
-    -- Game.logEvent $ WoodPlaced (getIx clearing)
+            zoom (Game.clearingAt clearing) $ do
+                Clr.addToken w
+                logEvent $ WoodPlaced clearing
 
     -- Advance the phase
     Game.setPhase $ FactionTurnPhase $ MarquisPhase $ CatCraftPhase []
@@ -62,12 +63,12 @@ per extra action.
 ----------------------------------
 execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
     -- Calculate how many suits the Marquis has available to spend
-
     -- Get the suits of all the clearings with a workshop
-    workshopSuits <-
-        zoom Game.board $ do
-            clearings <- Board.getClearingsP (Clr.hasBuilding Workshop)
-            return $ map (^. Clr.suit) clearings
+    workshopSuits <- zoom (Game.traverseClearings) $ do
+        hasWorkshop <- liftUpdate $ Clr.hasBuilding Workshop
+        if (hasWorkshop)
+            then pure <$> use Clr.suit
+            else return []
 
     -- Subtract the already used workshops
     let craftingSuits = bagDifference workshopSuits workshopsUsed
@@ -79,7 +80,7 @@ execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
     -- Ensure the Marquis has enough remaining workshops to craft the card
     if bagSubsetOf cardCost craftingSuits
         then do
-            Game.zoomCat $ zoom Cat.common $ do
+            zoom (Game.factionCommon Marquis) $ do
                 -- Remove the card from the Marquis' hand
                 Com.removeCard cardIx
                 -- Craft the card
@@ -103,7 +104,7 @@ execCatAction (CatChooseActionPhase n) action = do
 ----------------------------------
 -- Otherwise
 ----------------------------------
-execCatAction _ _ = liftErr NotImplemented
+execCatAction _ _ = liftErr WrongPhase
 
 execDaylightAction :: CatAction -> Update Game ()
 execDaylightAction CatBattle = liftErr NotImplemented

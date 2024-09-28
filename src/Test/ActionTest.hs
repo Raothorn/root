@@ -1,12 +1,13 @@
 {-# LANGUAGE RankNTypes #-}
 {-# OPTIONS_GHC -Wno-deprecations #-}
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Test.ActionTest (
     runActionTests,
 ) where
 
-import Debug.Trace (traceShow)
+import Debug.Trace (traceShowM)
 
 import Control.Monad
 import Control.Monad.Trans.Class
@@ -16,6 +17,7 @@ import Control.Monad.Trans.Writer.Lazy
 import Data.Functor
 
 import Lens.Micro
+import Lens.Micro.Mtl
 
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -24,8 +26,10 @@ import ExecAction
 import Parameters as P
 import qualified Root.Card as Card
 import qualified Root.Clearing as Clr
+import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import Root.Types
+import System.IO.Error (doesNotExistErrorType)
 import Test.TestSetup
 import Types.IxTable
 import Types.LogEvent
@@ -53,12 +57,11 @@ runActionTests =
         [ runTest "Cat setup works with valid input" $ \game -> do
             -- place the keep in the top left corner (1) and the other buildings in the
             -- adjacent clearings (sawmill-2, workshop-4, recruit-7)
-            let clearingIxs = (1, 2, 4, 7) & each %~ makeIx
-                setupAction = SetupAction $ CatSetupAction clearingIxs
-            game <- expect' game $ execAction setupAction
+            let clearingIxs = (1, 2, 4, 7)
+            game <- expect' game $ setupCat clearingIxs
             -- Get all the clearings
             [c1, c2, c4, c7] <- eval game $ do
-                forM (clearingIxs ^.. each) $ \cIx -> Game.getClearing cIx
+                forM (clearingIxs ^.. each) $ \cIx -> Game.getClearing (makeIx cIx)
 
             -- Verify that the keep is in clearing 1
             assertThat $ tokenInClearing Keep c1
@@ -68,12 +71,13 @@ runActionTests =
             forM_ clearingBuildings $ \(b, c) -> assertThat $ buildingInClearing b c
 
             -- Verify that all the warriors have been placed
-            allClearings <- eval game Game.getClearings
+            allClearingIxs <- eval game $ use Game.allClearingIxs
             let oppositeClearingIx = makeIx 10 :: Index Clearing
 
-            forM_ allClearings $ \clearing -> do
+            forM_ allClearingIxs $ \clearingIx -> do
+                clearing <- eval game $ Game.getClearing clearingIx
                 let assertion = warriorInClearing CatWarrior clearing
-                if getIx clearing == oppositeClearingIx
+                if clearingIx == oppositeClearingIx
                     then -- There should be no warrior in the opposite clearing
                         assertNot assertion
                     else -- There should be a warrior in every other clearing
@@ -82,8 +86,9 @@ runActionTests =
 
             -- Verify that the number of warriors left in the supply is correct
             -- One warrior should have been placed in all clearings except the opposite one
-            let expectedWarriors = P.catWarriorSupply - (length allClearings - 1)
-            actualWarriors <- eval game $ Game.getWarriorSupply Marquis
+            let expectedWarriors = P.catWarriorSupply - (length allClearingIxs - 1)
+            marquisCommon <- eval game $ Game.getFactionCommon Marquis
+            let actualWarriors = marquisCommon ^. Com.warriors
             lift $
                 assertEqual
                     "Number of warriors left in supply"
@@ -108,34 +113,61 @@ runActionTests =
           runTest "Cat place wood action" $ \game -> do
             -- Place the keep in the top left corner (1)
             -- and the sawmill in the adjacent clearing (2)
-            game <- expect' game $ setupCat 1 2 4 7
+            game <- expect' game $ setupCat (1, 2, 4, 7)
 
             -- Place wood in the sawmill clearing
-            let placeWoodAction = TurnAction $ MarquisAction CatPlaceWood
-            game <- expect' game $ execAction placeWoodAction
+            game <- expect' game placeWood
 
             -- Verify that the wood token is in the sawmill clearing
             c2 <- eval game $ Game.getClearing $ makeIx 2
             assertThat $ tokenInClearing Wood c2
-            ----------------------------------
-            -- Cat Craft Action
-            ----------------------------------
-            -- , runTest "Cat craft action happy path" $ \game -> do
-            --     -- Place the keep in the top left corner (1)
-            --     -- and the workshop in the adjacent clearing (4)
-            --     game <- expect' game $ setupCat 1 2 4 7
-            --
-            --     -- Get the suit of the workshop clearing
-            --     workshopSuit <- eval game $ do
-            --         c4 <- Game.getClearing $ makeIx 4
-            --         return $ c4 ^. Clr.suit
-            --
-            --     -- Replace the card lookup with a card that costs the workshop suit
-            --     -- and has the effect of gaining 3 victory points
-            --     let card = Card.newCard def [workshopSuit] (VictoryPoints 3)
-            --     (game, [card]) <- expect game $ replaceCardLookup [card]
-            --
-            --     return ()
+        , ----------------------------------
+          -- Cat Craft Action
+          ----------------------------------
+          runTest "Cat craft action happy path" $ \game -> do
+            -- Place the keep in the top left corner (1)
+            -- and the workshop in the adjacent clearing (4)
+            game <- expect' game $ setupCat (1, 2, 4, 7) >> placeWood
+
+            -- Get the suit of the workshop clearing
+            workshopSuit <- eval game $ do
+                c4 <- Game.getClearing $ makeIx 4
+                return $ c4 ^. Clr.suit
+
+            -- Replace the card lookup with a card that costs the workshop suit
+            -- and has the effect of gaining 3 victory points. We place 2 copies
+            -- so that we can test that only one can be crafted.
+            let card = Card.newCard def [workshopSuit] (VictoryPoints 3)
+            (game, [cardIx, cardIx2]) <- expect game $ replaceCardLookup [card, card]
+
+            -- Give the cards to the Marquis
+            game <- expect' game $ do
+                Game.giveCard Marquis cardIx
+                Game.giveCard Marquis cardIx2
+
+            -- Craft the card
+            let craftAction = TurnAction $ MarquisAction $ CatCraft cardIx
+            game <- expect' game $ execAction craftAction
+
+            -- Verify that the card is no longer in the Marquis' hand
+            expectErr CardNotInHand game $ Game.getHandCard Marquis cardIx
+
+            -- Verify that the Marquis gained 3 victory points
+            vps <- eval game $ Game.getVps Marquis
+            lift $ assertEqual "Victory points" 3 vps
+
+            tracePhase game
+
+            -- If the crafting action is tried again with the other card, it should fail
+            -- since the Marquis does not have the workshop available to craft it
+            let craftAction = TurnAction $ MarquisAction $ CatCraft cardIx2
+            expectErr CannotAffordCraft game $ execAction craftAction
+        , runTest "Cat craft action fails when card not in hand" $ \game -> do
+            game <- expect' game $ setupCatDef >> placeWood
+
+            -- The marquis does not have any cards. Try to craft one anyway.
+            let craftAction = TurnAction $ MarquisAction $ CatCraft (makeIx 0)
+            expectErr CardNotInHand game $ execAction craftAction
         ]
 
 runTest :: String -> ActionTest -> TestTree
@@ -182,6 +214,14 @@ expectErr expectedErr state f = do
         Right _ ->
             lift $ assertString "Expected an error, but got a valid result"
 
+expectErr' :: s -> Update s a -> M ()
+expectErr' state f = do
+    let result = runWriterT $ runStateT f state
+    case result of
+        Left _ -> return ()
+        Right _ ->
+            lift $ assertString "Expected an error, but got a valid result"
+
 nothing :: M a
 nothing = mzero
 
@@ -222,6 +262,3 @@ tracePhase :: Game -> M ()
 tracePhase game = do
     phase <- eval game Game.getPhase
     traceShowM phase
-
-traceShowM :: (Show a) => a -> M ()
-traceShowM x = lift $ traceShow x $ return ()

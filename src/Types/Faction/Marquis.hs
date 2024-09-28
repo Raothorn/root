@@ -7,7 +7,7 @@ module Types.Faction.Marquis (
     CatAction (..),
     CatSetup,
     -- Lenses
-    common,
+    marquisCommon,
     woodTokens,
     keepCorner,
     sawmillClearing,
@@ -31,7 +31,7 @@ import Types.IxTable
 -- Types
 ----------------------------------
 data CatFaction = CatFaction
-    { _common :: FactionCommon
+    { _marquisCommon :: FactionCommon
     , _sawmills :: Int
     , _workshops :: Int
     , _recruiters :: Int
@@ -69,7 +69,7 @@ type CatSetup = (Index Clearing, Index Clearing, Index Clearing, Index Clearing)
 instance Default CatFaction where
     def =
         CatFaction
-            { _common = newFactionCommon Marquis P.catWarriorSupply
+            { _marquisCommon = newFactionCommon Marquis P.catWarriorSupply
             , _sawmills = P.catSawmills
             , _workshops = P.catWorkshops
             , _recruiters = P.catRecruiters

@@ -26,7 +26,6 @@ import Types.IxTable
 data Faction
     = Marquis
     | Eerie
-    | NoFaction
     deriving (Show)
 
 data FactionCommon = FactionCommon
@@ -43,7 +42,7 @@ data FactionCommon = FactionCommon
 instance Default FactionCommon where
     def =
         FactionCommon
-            { _faction = NoFaction
+            { _faction = Marquis
             , _warriors = 0
             , _hand = []
             , _victoryPoints = 0
