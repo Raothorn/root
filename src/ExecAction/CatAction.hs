@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Redundant bracket" #-}
 module ExecAction.CatAction (
     execCatAction,
 ) where
 
 import Control.Monad
+import Control.Monad.Trans.State.Lazy
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -64,9 +64,9 @@ per extra action.
 execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
     -- Calculate how many suits the Marquis has available to spend
     -- Get the suits of all the clearings with a workshop
-    workshopSuits <- zoom (Game.traverseClearings) $ do
-        hasWorkshop <- liftUpdate $ Clr.hasBuilding Workshop
-        if (hasWorkshop)
+    workshopSuits <- zoom Game.traverseClearings $ do
+        hasWorkshop <- gets $ Clr.hasBuilding Workshop
+        if hasWorkshop
             then pure <$> use Clr.suit
             else return []
 

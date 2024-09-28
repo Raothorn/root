@@ -16,6 +16,7 @@ module Types.Clearing (
     newClearing,
     -- Helpers
     isCorner,
+    isAdjacent,
     hasToken,
     hasBuilding,
     hasWarrior,
@@ -79,6 +80,9 @@ makeLenses ''Clearing
 ----------------------------------
 isCorner :: Clearing -> Bool
 isCorner = isJust . _oppositeCorner
+
+isAdjacent ::  Index Clearing -> Clearing -> Bool
+isAdjacent other clearing = other `elem` clearing ^. adjacent
 
 hasToken :: Token -> Clearing -> Bool
 hasToken token clearing = token `elem` clearing ^. tokens

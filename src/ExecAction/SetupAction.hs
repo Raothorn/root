@@ -3,6 +3,7 @@ module ExecAction.SetupAction (
 ) where
 
 import Control.Monad
+import Control.Monad.Trans.State.Lazy
 import Data.List ((\\))
 
 import Lens.Micro
@@ -59,7 +60,7 @@ execSetupAction CatSetupPhase (CatSetupAction setup) = do
     forM_ buildings $ \(building, clearingIx) -> do
         zoomT (Game.clearingAt clearingIx) $ do
             -- Check that the building can be placed in the clearing
-            isAdjacent <- Clr.isAdjacent keepCorner
+            isAdjacent <- gets $ Clr.isAdjacent keepCorner
             unless (clearingIx == keepCorner || isAdjacent) $ liftErr InvalidBuildingLocation
             -- Place the building in the clearing
             Clr.addBuilding building

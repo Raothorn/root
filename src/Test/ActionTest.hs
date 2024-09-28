@@ -155,8 +155,6 @@ runActionTests =
             vps <- eval game $ Game.getVps Marquis
             lift $ assertEqual "Victory points" 3 vps
 
-            tracePhase game
-
             -- If the crafting action is tried again with the other card, it should fail
             -- since the Marquis does not have the workshop available to craft it
             let craftAction = TurnAction $ MarquisAction $ CatCraft cardIx2

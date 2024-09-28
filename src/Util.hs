@@ -6,7 +6,6 @@ module Util (
     liftErr,
     liftMaybe,
     liftTraversal,
-    liftUpdate,
     logEvent,
     zoomT,
     -- Control
@@ -66,10 +65,6 @@ zoomT :: Traversal' s a -> Update a b -> Update s b
 zoomT l f = do
     result <- zoom l $ pure <$> f
     liftMaybe TraversalError (listToMaybe result)
-
--- Lifts an aribtrary function on the state to the Update monad
-liftUpdate :: (s -> a) -> Update s a
-liftUpdate f = f <$> get
 
 ----------------------------------
 -- Control Utilities

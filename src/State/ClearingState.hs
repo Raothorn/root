@@ -2,7 +2,6 @@ module State.ClearingState (
     addToken,
     addWarrior,
     addBuilding,
-    isAdjacent,
     getOppositeCorner,
 ) where
 
@@ -30,11 +29,6 @@ addBuilding building = do
     if numBuildings >= numSlots
         then liftErr NoFreeBuildingSlots
         else buildings %= (building :)
-
-isAdjacent :: Index Clearing -> Update Clearing Bool
-isAdjacent other = do
-    adj <- use adjacent
-    return $ other `elem` adj
 
 getOppositeCorner :: Update Clearing (Index Clearing)
 getOppositeCorner = useMaybe NotCornerClearing oppositeCorner
