@@ -43,7 +43,3 @@ replaceCardLookup cardConstructors = do
     let cards = zipWith (\i c -> c (makeIx i)) [0 ..] cardConstructors
     Game.cardLookup .= \i -> fromMaybe def $ Lst.find ((== i) . getIx) cards
     return $ map getIx cards
-
-----------------------------------
--- Misc
-----------------------------------

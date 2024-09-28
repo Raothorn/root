@@ -29,7 +29,6 @@ import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import Root.Types
-import System.IO.Error (doesNotExistErrorType)
 import Test.TestSetup
 import Types.IxTable
 import Types.LogEvent
@@ -98,12 +97,12 @@ runActionTests =
           -- Cat Setup Failure Cases
           ----------------------------------
           runTest "Cat setup fails when keep clearing is not a corner" $ \game -> do
-            -- -- Try to put the keep in clearing 2 (not a corner)
+            -- Try to put the keep in clearing 2 (not a corner)
             let clearingIxs = (2, 2, 4, 7) & each %~ makeIx
                 setupAction = SetupAction $ CatSetupAction clearingIxs
             expectErr NotCornerClearing game $ execAction setupAction
         , runTest "Cat setup fails when building clearing not adjacent to keep" $ \game -> do
-            -- -- Try to put the keep in clearing 1 and the sawmill in clearing 3
+            -- Try to put the keep in clearing 1 and the sawmill in clearing 3
             let clearingIxs = (1, 3, 4, 7) & each %~ makeIx
                 setupAction = SetupAction $ CatSetupAction clearingIxs
             expectErr InvalidBuildingLocation game $ execAction setupAction

@@ -1,16 +1,17 @@
+module ExecAction.SetupAction (
+    execSetupAction,
+) where
+
 import Control.Monad
 import Data.List ((\\))
 
 import Lens.Micro
 import Lens.Micro.Mtl
 
-import qualified Root.Board as Board
 import qualified Root.Clearing as Clr
-import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import qualified Root.Marquis as Cat
 import Root.Types
-import Types.IxTable
 import Util
 
 execSetupAction :: FactionSetupPhase -> SetupAction -> Update Game ()
