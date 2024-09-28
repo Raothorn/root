@@ -10,10 +10,6 @@ module Util (
     zoomT,
     -- Control
     whenM,
-    -- IxTable
-    addIxEntry,
-    getIxEntry,
-    deleteIxEntry,
     -- List
     bagDifference,
     bagSubsetOf,
@@ -33,7 +29,6 @@ import Lens.Micro.Mtl
 
 import Types.Alias
 import Types.Error
-import Types.IxTable as I
 import Types.LogEvent
 
 ----------------------------------
@@ -73,23 +68,6 @@ whenM :: (Monad m) => m Bool -> m () -> m ()
 whenM predicate f = do
     result <- predicate
     when result f
-
-----------------------------------
--- IxTable Utilities
-----------------------------------
--- Lensy CRUD operations on IxTable
-addIxEntry :: Lens' s (IxTable a) -> ConIx a -> Update s a
-addIxEntry l con = do
-    table <- use l
-    let (table', x) = I.insert con table
-    l .= table'
-    return x
-
-getIxEntry :: Error -> Lens' s (IxTable a) -> Index a -> Update s a
-getIxEntry err l entryId = useMaybe err $ l . atTable entryId
-
-deleteIxEntry :: Lens' s (IxTable a) -> Index a -> Update s ()
-deleteIxEntry l entryId = l %= I.delete entryId
 
 ----------------------------------
 -- List Utilities

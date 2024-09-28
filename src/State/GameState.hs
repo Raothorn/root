@@ -29,7 +29,6 @@ import qualified Root.FactionCommon as Com
 import Root.Types
 import qualified Types.Board as Board
 import Types.Game
-import qualified Types.IxTable as I
 import Util
 
 ----------------------------------
@@ -151,7 +150,7 @@ getClearing i = liftTraversal IndexError $ clearingAt i
 
 getClearingsWhere :: (Clearing -> Bool) -> Update Game [Index Clearing]
 getClearingsWhere p = do
-    zoom (traverseClearings . filtered p) $ do
+    zoom (allClearings . filtered p) $ do
         index <- use Clr.index
         return [index]
 

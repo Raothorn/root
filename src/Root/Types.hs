@@ -7,7 +7,7 @@ module Root.Types (
     module Types.Action,
     module Types.Card,
     module Types.Error,
-    module Types.IxTable,
+    module Types.Index,
     module Types.Phase,
     module Types.CommonTypes,
     module Types.LogEvent,
@@ -30,6 +30,6 @@ import Types.Faction (
     FactionCommon,
  )
 import Types.Game (Game)
-import Types.IxTable (ConIx, Index, Indexed (..), IxTable ())
+import Types.Index (ConIx, Index, Indexed (..))
 import Types.LogEvent (LogEvent (..))
 import Types.Phase (DayPhase (..), FactionSetupPhase (..), FactionTurnPhase (..), Phase (..))

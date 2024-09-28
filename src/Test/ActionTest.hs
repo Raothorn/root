@@ -30,8 +30,8 @@ import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import Root.Types
 import Test.TestSetup
-import Types.IxTable
 import Types.LogEvent
+import Types.Index
 
 debug :: Bool
 debug = False
@@ -70,7 +70,8 @@ runActionTests =
             forM_ clearingBuildings $ \(b, c) -> assertThat $ buildingInClearing b c
 
             -- Verify that all the warriors have been placed
-            allClearingIxs <- eval game $ use Game.allClearingIxs
+            allClearings <- eval game $ gets $ toListOf Game.allClearings
+            let allClearingIxs = map getIx allClearings
             let oppositeClearingIx = makeIx 10 :: Index Clearing
 
             forM_ allClearingIxs $ \clearingIx -> do

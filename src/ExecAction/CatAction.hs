@@ -64,7 +64,7 @@ per extra action.
 execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
     -- Calculate how many suits the Marquis has available to spend
     -- Get the suits of all the clearings with a workshop
-    workshopSuits <- zoom Game.traverseClearings $ do
+    workshopSuits <- zoom Game.allClearings $ do
         hasWorkshop <- gets $ Clr.hasBuilding Workshop
         if hasWorkshop
             then pure <$> use Clr.suit

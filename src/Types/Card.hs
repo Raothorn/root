@@ -16,7 +16,7 @@ import Lens.Micro.TH
 
 import Types.CommonTypes
 import Types.Default
-import Types.IxTable
+import Types.Index
 
 ----------------------------------
 -- Types

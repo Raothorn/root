@@ -15,8 +15,8 @@ import Lens.Micro.Mtl
 
 import ExecAction
 import qualified Root.Game as Game
-import Root.IxTable
 import Root.Types
+import Types.Index
 
 ----------------------------------
 -- Marquis Setup

@@ -7,12 +7,12 @@ import Lens.Micro
 import Types.Board (Board, newBoard)
 import Types.Clearing
 import Types.CommonTypes
-import Types.IxTable as I
+import Types.Index
 
 forestMap :: Board
 forestMap = newBoard $ fmap (\c -> initClearing (getIx' c) c) clearings
   where
-    clearings = I.createN newClearing 1 12
+    clearings = createN newClearing 1 12
 
 initClearing :: Int -> Clearing -> Clearing
 ----------------------------------

@@ -4,7 +4,7 @@ module Lookup.CardLookup (
 
 import Types.Card
 import Types.Default
-import Types.IxTable (Index)
+import Types.Index
 
 lookupCard :: Index Card -> Card
 lookupCard = const def

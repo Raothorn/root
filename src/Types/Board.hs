@@ -13,13 +13,13 @@ import Lens.Micro.TH
 
 import Types.Clearing (Clearing)
 import Types.Default
-import Types.IxTable as I
+import Types.Index as I
 
 ----------------------------------
 -- Types
 ----------------------------------
 newtype Board = Board
-    { _clearings :: IxTable Clearing
+    { _clearings :: IxList Clearing
     }
 
 ----------------------------------
@@ -39,5 +39,5 @@ makeLenses ''Board
 ----------------------------------
 -- Constructors
 ----------------------------------
-newBoard :: IxTable Clearing -> Board
+newBoard :: IxList Clearing -> Board
 newBoard = Board

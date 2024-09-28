@@ -18,7 +18,7 @@ import Lens.Micro.TH
 
 import Types.Card (Card)
 import Types.Default
-import Types.IxTable
+import Types.Index
 
 ----------------------------------
 -- Types

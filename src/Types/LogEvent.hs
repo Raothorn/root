@@ -6,7 +6,7 @@ module Types.LogEvent (
 import Types.Card (Card)
 import Types.Clearing (Clearing)
 import Types.Faction (Faction)
-import Types.IxTable (Index)
+import Types.Index (Index)
 import Types.Phase
 
 data LogEvent

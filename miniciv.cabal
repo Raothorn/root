@@ -38,7 +38,6 @@ library
       Root.Clearing
       Root.FactionCommon
       Root.Game
-      Root.IxTable
       Root.Lookup
       Root.Marquis
       Root.Types
@@ -62,7 +61,7 @@ library
       Types.Faction.FactionCommon
       Types.Faction.Marquis
       Types.Game
-      Types.IxTable
+      Types.Index
       Types.LogEvent
       Types.Phase
       Util

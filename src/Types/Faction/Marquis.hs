@@ -25,7 +25,7 @@ import Types.Clearing (Clearing)
 import Types.CommonTypes
 import Types.Default
 import Types.Faction.FactionCommon
-import Types.IxTable
+import Types.Index
 
 ----------------------------------
 -- Types

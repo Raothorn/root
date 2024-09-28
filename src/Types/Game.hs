@@ -16,8 +16,8 @@ module Types.Game (
     birdFaction,
     factionCommon,
     clearingAt,
+    allClearings,
     allClearingIxs,
-    traverseClearings,
     -- Constructors
     newForestGame,
 ) where
@@ -37,8 +37,8 @@ import Types.Default
 import Types.Faction (BirdFaction, CatFaction, Faction (..), FactionCommon)
 import qualified Types.Faction.Eerie as Bird
 import qualified Types.Faction.Marquis as Cat
-import Types.IxTable (Index)
-import qualified Types.IxTable as I
+import Types.Index (Index)
+import qualified Types.Index as I
 import Types.Phase (Phase)
 
 ----------------------------------
@@ -106,14 +106,13 @@ factionCommon Eerie = birdFaction . Bird.eerieCommon
 -- Board
 ----------------------------------
 clearingAt :: Index Clearing -> Traversal' Game Clearing
-clearingAt i = board . Board.clearings . I.ixTable i
+clearingAt i = board . Board.clearings . I.ixList i
+
+allClearings :: Traversal' Game Clearing
+allClearings = board . Board.clearings . traversed
 
 allClearingIxs :: SimpleGetter Game [Index Clearing]
-allClearingIxs = board . Board.clearings . to I.values . to (map I.getIx)
-
-traverseClearings :: Traversal' Game Clearing
-traverseClearings = board . Board.clearings . I.traverseTable
-
+allClearingIxs = to (map I.getIx . toListOf allClearings) 
 ----------------------------------
 -- Constructors
 ----------------------------------
