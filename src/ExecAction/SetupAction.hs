@@ -1,6 +1,3 @@
-module ExecAction.SetupAction (
-    execSetupAction,
-) where
 
 import Control.Monad
 import Data.List ((\\))

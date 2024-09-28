@@ -27,7 +27,9 @@ import Lens.Micro.Mtl
 import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import Root.Types
+import qualified Types.Board as Board
 import Types.Game
+import qualified Types.IxTable as I
 import Util
 
 ----------------------------------
