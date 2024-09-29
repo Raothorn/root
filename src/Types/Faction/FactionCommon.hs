@@ -20,8 +20,8 @@ module Types.Faction.FactionCommon (
 import Lens.Micro
 import Lens.Micro.TH
 
-import Types.CommonTypes
 import Types.Card (Card)
+import Types.CommonTypes
 import Types.Default
 import Types.Index
 

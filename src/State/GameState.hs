@@ -31,8 +31,8 @@ import Lens.Micro.Mtl
 import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import Root.Types
-import qualified Types.Phase as Phase
 import Types.Game
+import qualified Types.Phase as Phase
 import Util
 
 ----------------------------------
@@ -85,11 +85,11 @@ initiateBattle attacker defender clearingIx = do
     pushPhase phase
 
 {-
-Rule 4.2: When you move, you may take any number of your warriors or your pawn 
+Rule 4.2: When you move, you may take any number of your warriors or your pawn
 from one clearing and move them to one adjacent clearing.
 
-You Must Rule. To take a move, you must rule the origin clearing, destination clearing, or both. 
-No Movement Limits. A given piece can be moved any number of times per turn. If you are prompted 
+You Must Rule. To take a move, you must rule the origin clearing, destination clearing, or both.
+No Movement Limits. A given piece can be moved any number of times per turn. If you are prompted
 to take multiple moves, you may move the same or separate groups of warriors.
 -}
 moveWarriors :: Faction -> Int -> Index Clearing -> Index Clearing -> Update Game ()
@@ -98,17 +98,18 @@ moveWarriors faction numWarriors fromIx toIx = do
     fromRuler <- zoomT (clearingAt fromIx) Clr.getRulingFaction
     toRuler <- zoomT (clearingAt toIx) Clr.getRulingFaction
 
-    unless (elem faction $ catMaybes [fromRuler, toRuler]) 
-        $ liftErr CannotMoveDueToRule
+    unless (elem faction $ catMaybes [fromRuler, toRuler]) $
+        liftErr CannotMoveDueToRule
 
     -- Remove the warriors from the origin clearing
-    warriors <- zoomT (clearingAt fromIx) $ 
-        Clr.removeWarriors faction numWarriors
+    warriors <-
+        zoomT (clearingAt fromIx) $
+            Clr.removeWarriors faction numWarriors
 
     -- Add the warriors to the destination clearing
     forM_ warriors $ \w ->
         zoom (clearingAt toIx) $ Clr.addWarrior w
-    
+
 ----------------------------------
 -- Phase
 ----------------------------------

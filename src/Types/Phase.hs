@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
+
 module Types.Phase (
     -- Types
     Phase (..),
@@ -19,10 +20,10 @@ module Types.Phase (
 
 import Lens.Micro.TH
 
+import Types.Clearing
 import Types.Default
 import Types.Faction
 import Types.Index
-import Types.Clearing
 
 ----------------------------------
 -- Types
@@ -47,13 +48,14 @@ data FactionTurnPhase
     | EeriePhase BirdPhase
     deriving (Show)
 
-data BattlePhaseData = BattlePhaseData {
-    _attacker :: Faction,
-    _defender :: Faction,
-    _clearing :: Index Clearing,
-    _attackRoll :: Maybe Int,
-    _defendRoll :: Maybe Int
-} deriving (Show)
+data BattlePhaseData = BattlePhaseData
+    { _attacker :: Faction
+    , _defender :: Faction
+    , _clearing :: Index Clearing
+    , _attackRoll :: Maybe Int
+    , _defendRoll :: Maybe Int
+    }
+    deriving (Show)
 
 data DayPhase = Birdsong | Morning | Evening
     deriving (Show)
@@ -73,13 +75,15 @@ instance Default Phase where
 -- Constructors
 ----------------------------------
 newBattlePhase :: Faction -> Faction -> Index Clearing -> Phase
-newBattlePhase attacker defender clearing = BattlePhase $ BattlePhaseData {
-    _attacker = attacker,
-    _defender = defender,
-    _clearing = clearing,
-    _attackRoll = Nothing,
-    _defendRoll = Nothing
-}
+newBattlePhase attacker defender clearing =
+    BattlePhase $
+        BattlePhaseData
+            { _attacker = attacker
+            , _defender = defender
+            , _clearing = clearing
+            , _attackRoll = Nothing
+            , _defendRoll = Nothing
+            }
 
 ----------------------------------
 -- Helpers

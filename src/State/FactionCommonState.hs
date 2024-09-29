@@ -30,6 +30,7 @@ addWarrior warrior = do
     fac <- use faction
     unless (warriorFaction warrior == fac) $ liftErr WrongFaction
     warriors += 1
+
 {-
 Parameters:
     card :: Card - the card the faction is crafting

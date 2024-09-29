@@ -13,8 +13,8 @@ module State.ClearingState (
 ) where
 
 import Control.Monad
-import Data.Maybe
 import qualified Data.List as List
+import Data.Maybe
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -50,7 +50,7 @@ removeWarrior faction = do
             List.partition ((== faction) . Com.warriorFaction) allWarriors
 
     case factionWarriors of
-        (w:rm) -> do
+        (w : rm) -> do
             warriors .= rm ++ remainingWarriors
             return $ Just w
         _ -> return Nothing
