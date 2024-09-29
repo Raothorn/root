@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Types.Faction.Marquis (
     -- Types
@@ -8,7 +9,11 @@ module Types.Faction.Marquis (
     CatSetup,
     -- Lenses
     marquisCommon,
+    sawmills,
+    workshops,
+    recruiters,
     woodTokens,
+    buildings,
     keepCorner,
     sawmillClearing,
     workshopClearing,
@@ -55,9 +60,9 @@ data CatAction
     | CatFinishCrafting
     | CatBattle (Index Clearing) Faction
     | CatMarch (Index Clearing) (Index Clearing) Int
-    | CatRecruit
-    | CatBuild
-    | CatOverwork
+    | CatRecruit 
+    | CatBuild (Index Clearing) Building [(Index Clearing, Int)]
+    | CatOverwork (Index Card) (Index Clearing)
     | CatFinishDaylightActions
     | CatDraw
 
@@ -83,6 +88,11 @@ instance Default CatFaction where
 ----------------------------------
 makeLenses ''CatFaction
 
+buildings :: Building -> Lens' CatFaction Int
+buildings Sawmill = sawmills
+buildings Workshop = workshops
+buildings Recruiter = recruiters
+
 keepCorner :: Lens' CatSetup (Index Clearing)
 keepCorner = _1
 
@@ -94,3 +104,4 @@ workshopClearing = _3
 
 recruiterClearing :: Lens' CatSetup (Index Clearing)
 recruiterClearing = _4
+

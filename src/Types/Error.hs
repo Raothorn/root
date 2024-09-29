@@ -6,9 +6,12 @@ data Error
     = Error
     | IndexError
     | EmptyPhaseStack
+    | WrongAmount
     | EmptyTypeEncountered
     | NoWarriorsInClearing
     | NotEnoughWarriors
+    | NoBuildingsRemaining
+    | SuitDoesNotMatch
     | NoPiecesInClearing
     | NotImplemented
     | WrongPhase
@@ -20,6 +23,8 @@ data Error
     | CannotAffordCraft
     | CardNotInHand
     | NotCornerClearing
+    | NotEnoughTokens
+    | ClearingsNotConnectedByRule
     | NoFreeBuildingSlots
     | EmptySupply
     | InvalidBuildingLocation

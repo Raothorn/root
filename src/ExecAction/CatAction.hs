@@ -15,7 +15,6 @@ import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import qualified Root.Marquis as Cat
-import qualified Root.Phase as Phase
 import Root.Types
 import Util
 
@@ -145,8 +144,76 @@ execDaylightAction CatRecruit = do
 ----------------------------------
 -- Build
 ----------------------------------`
-execDaylightAction CatBuild = liftErr NotImplemented
-execDaylightAction CatOverwork = liftErr NotImplemented
+{-
+Build. Place a building.
+Choose Building. Choose whether you want to place a sawmill, workshop, or recruiter. Find
+the leftmost building of that type remaining on your faction board. Note that building’s cost,
+listed at the top of its column.
+Choose Clearing and Pay Wood. Choose any clearing you rule. Remove wood tokens equal in number
+to the building’s cost from the chosen clearing, any adjacent clearings you rule, or any
+clearings connected to the chosen clearing you rule through any number of clearings you rule.
+Place Building and Score. Place the chosen building on the chosen clearing, and score the
+victory points revealed on the space under the building removed from your faction board.
+-}
+execDaylightAction (CatBuild clearing building woodClearings) = do
+    allWoodTokens <- forM woodClearings $ \(woodClearing, numTokens) -> do
+        -- Verify that the clearing is connected by a path of ruled clearings
+        connected <- Game.areClearingsConnected Marquis clearing woodClearing []
+        unless connected $ liftErr ClearingsNotConnectedByRule
+
+        -- Will propogate an error if there are not enough wood tokens
+        zoomT (Game.clearingAt woodClearing) $ 
+            Clr.removeTokens Wood numTokens
+    let woodTokens = concat allWoodTokens
+
+    -- Verify that the Marquis has selected enough wood tokens
+    buildingCost <- zoomT Game.catFaction $ Cat.buildingCost building
+    unless (length woodTokens == buildingCost) $
+        liftErr WrongAmount
+
+    -- Remove the building from the faction board
+    (buildingVps, draw) <- zoomT Game.catFaction $ Cat.removeBuilding building
+
+    -- Place the building
+    zoom (Game.clearingAt clearing) $ Clr.addBuilding building
+
+    -- Score the victory points
+    Game.factionCommon Marquis . Com.victoryPoints += buildingVps
+
+    -- Draw cards
+    -- replicateM_ draw $ do
+        -- Draw a card
+        -- cardIx <- Game.drawCard
+        -- Give the card to the Marquis
+        -- Game.giveCard Marquis cardIx
+
+
+----------------------------------
+-- Overwork
+----------------------------------
+{-
+Overwork. Spend a card matching the clearing of a sawmill, and place a wood token there.
+-}
+execDaylightAction (CatOverwork cardIx clearing) = do
+    -- Ensure the card matches the clearing
+    card <- Game.lookupCard cardIx
+    let cardSuit = card ^. Card.suit
+
+    clearingSuit <- liftTraversal IndexError $ Game.clearingAt clearing . Clr.suit
+
+    unless (cardSuit == clearingSuit) $ liftErr SuitDoesNotMatch
+
+    -- Take the card from the Marquis' hand
+    zoomT (Game.factionCommon Marquis) $ Com.removeCard cardIx
+
+    -- Place a wood token in the clearing
+    woodToken <- zoom Game.catFaction Cat.takeWoodToken
+    forM_ woodToken $ \w -> do
+        zoom (Game.clearingAt clearing) $ Clr.addToken w
+
+----------------------------------
+-- Finish Daylight Actions
+----------------------------------
 execDaylightAction CatFinishDaylightActions = do
     -- Advance the phase
     Game.setPhase $ FactionTurnPhase $ MarquisPhase CatDrawPhase

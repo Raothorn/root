@@ -1,9 +1,11 @@
 module State.ClearingState (
     addToken,
+    removeToken,
+    removeTokens,
     addWarrior,
-    addBuilding,
     removeWarrior,
     removeWarriors,
+    addBuilding,
     numFactionTokens,
     numFactionWarriors,
     numFactionBuildings,
@@ -30,17 +32,29 @@ import Util
 addToken :: Token -> Update Clearing ()
 addToken token = tokens %= (token :)
 
+
+removeToken :: Token -> Update Clearing (Maybe Token)
+removeToken token = do
+    allTokens <- use tokens
+
+    let (tokenToRemove, remainingTokens) =
+            List.partition (== token) allTokens
+
+    case tokenToRemove of
+        (t : rm) -> do
+            tokens .= rm ++ remainingTokens
+            return $ Just t
+        _ -> return Nothing
+
+removeTokens :: Token -> Int -> Update Clearing [Token]
+removeTokens token num = do
+    removed <- replicateM num $ removeToken token
+    if any isNothing removed
+        then liftErr NotEnoughTokens
+        else return $ catMaybes removed
+
 addWarrior :: Warrior -> Update Clearing ()
 addWarrior warrior = warriors %= (warrior :)
-
-addBuilding :: Building -> Update Clearing ()
-addBuilding building = do
-    numSlots <- use buildingSlots
-    numBuildings <- use $ buildings . to length
-
-    if numBuildings >= numSlots
-        then liftErr NoFreeBuildingSlots
-        else buildings %= (building :)
 
 removeWarrior :: Faction -> Update Clearing (Maybe Warrior)
 removeWarrior faction = do
@@ -61,6 +75,17 @@ removeWarriors faction num = do
     if any isNothing removed
         then liftErr NotEnoughWarriors
         else return $ catMaybes removed
+
+addBuilding :: Building -> Update Clearing ()
+addBuilding building = do
+    numSlots <- use buildingSlots
+    numBuildings <- use $ buildings . to length
+
+    if numBuildings >= numSlots
+        then liftErr NoFreeBuildingSlots
+        else buildings %= (building :)
+
+
 
 ----------------------------------
 -- Getters
@@ -113,3 +138,4 @@ getRulingFaction = do
     case winners of
         [(winner, _)] -> return $ Just winner
         _ -> return Nothing
+
