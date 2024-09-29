@@ -54,7 +54,7 @@ removeBuilding building = do
 
 -- Calculates the building cost based on the remaining buildings on the track.
 buildingCost :: Building -> Update CatFaction Int
-buildingCost building = do 
+buildingCost building = do
     remaining <- use $ buildings building
     buildingCost' remaining
 

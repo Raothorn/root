@@ -32,7 +32,6 @@ import Util
 addToken :: Token -> Update Clearing ()
 addToken token = tokens %= (token :)
 
-
 removeToken :: Token -> Update Clearing (Maybe Token)
 removeToken token = do
     allTokens <- use tokens
@@ -85,8 +84,6 @@ addBuilding building = do
         then liftErr NoFreeBuildingSlots
         else buildings %= (building :)
 
-
-
 ----------------------------------
 -- Getters
 ----------------------------------
@@ -138,4 +135,3 @@ getRulingFaction = do
     case winners of
         [(winner, _)] -> return $ Just winner
         _ -> return Nothing
-

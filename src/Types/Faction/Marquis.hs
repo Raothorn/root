@@ -1,5 +1,5 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Types.Faction.Marquis (
     -- Types
@@ -60,7 +60,7 @@ data CatAction
     | CatFinishCrafting
     | CatBattle (Index Clearing) Faction
     | CatMarch (Index Clearing) (Index Clearing) Int
-    | CatRecruit 
+    | CatRecruit
     | CatBuild (Index Clearing) Building [(Index Clearing, Int)]
     | CatOverwork (Index Card) (Index Clearing)
     | CatFinishDaylightActions
@@ -104,4 +104,3 @@ workshopClearing = _3
 
 recruiterClearing :: Lens' CatSetup (Index Clearing)
 recruiterClearing = _4
-

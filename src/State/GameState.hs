@@ -222,6 +222,7 @@ getVps :: Faction -> Update Game Int
 getVps faction =
     liftTraversal FactionNotInPlay $
         factionCommon faction . Com.victoryPoints
+
 {-
 Returns true if the clearings are connected by a path of clearings that the faction rules.
 -}
@@ -236,10 +237,11 @@ areClearingsConnected faction clearingIx targetIx breadcrumbs = do
     adjacentClearings <- use (clearingAt clearingIx . Clr.adjacent)
     if ruler == Just faction && clearingIx == targetIx
         then return True
-        else if ruler /= Just faction || elem clearingIx breadcrumbs
-            then return False
-            else do
-                let breadcrumbs' = clearingIx : breadcrumbs
-                connected <- forM adjacentClearings $ \adjIx ->
-                    areClearingsConnected faction adjIx targetIx breadcrumbs'
-                return $ or connected
+        else
+            if ruler /= Just faction || elem clearingIx breadcrumbs
+                then return False
+                else do
+                    let breadcrumbs' = clearingIx : breadcrumbs
+                    connected <- forM adjacentClearings $ \adjIx ->
+                        areClearingsConnected faction adjIx targetIx breadcrumbs'
+                    return $ or connected

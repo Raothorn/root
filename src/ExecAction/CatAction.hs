@@ -162,7 +162,7 @@ execDaylightAction (CatBuild clearing building woodClearings) = do
         unless connected $ liftErr ClearingsNotConnectedByRule
 
         -- Will propogate an error if there are not enough wood tokens
-        zoomT (Game.clearingAt woodClearing) $ 
+        zoomT (Game.clearingAt woodClearing) $
             Clr.removeTokens Wood numTokens
     let woodTokens = concat allWoodTokens
 
@@ -180,13 +180,12 @@ execDaylightAction (CatBuild clearing building woodClearings) = do
     -- Score the victory points
     Game.factionCommon Marquis . Com.victoryPoints += buildingVps
 
-    -- Draw cards
-    -- replicateM_ draw $ do
-        -- Draw a card
-        -- cardIx <- Game.drawCard
-        -- Give the card to the Marquis
-        -- Game.giveCard Marquis cardIx
-
+-- Draw cards
+-- replicateM_ draw $ do
+-- Draw a card
+-- cardIx <- Game.drawCard
+-- Give the card to the Marquis
+-- Game.giveCard Marquis cardIx
 
 ----------------------------------
 -- Overwork
