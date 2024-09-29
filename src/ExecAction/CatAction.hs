@@ -15,6 +15,7 @@ import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import qualified Root.Game as Game
 import qualified Root.Marquis as Cat
+import qualified Root.Phase as Phase
 import Root.Types
 import Util
 
@@ -92,14 +93,26 @@ execCatAction (CatCraftPhase workshopsUsed) (CatCraft cardIx) = do
                     MarquisPhase $
                         CatCraftPhase (workshopsUsed ++ cardCost)
         else liftErr CannotAffordCraft
-
+execCatAction (CatCraftPhase _) CatFinishCrafting = do
+    -- Advance the phase
+    Game.setPhase $ FactionTurnPhase $ MarquisPhase $ CatDaylightActionPhase 3 False
 ----------------------------------
 -- Daylight Actions
 ----------------------------------
-execCatAction (CatChooseActionPhase n) action = do
+execCatAction (CatDaylightActionPhase n hasRecruited) action = do
     when (n <= 0) $ liftErr NoActionsRemaining
     -- We defer checking if the action is valid to the dispatched function
+    recruiting <- case action of
+        CatRecruit -> do
+            when hasRecruited $ liftErr RecruitAlreadyUsed
+            return True
+        _ -> return False
+
     execDaylightAction action
+    Game.setPhase $
+        FactionTurnPhase $
+            MarquisPhase $
+                CatDaylightActionPhase (n - 1) recruiting
 
 ----------------------------------
 -- Otherwise
@@ -107,9 +120,34 @@ execCatAction (CatChooseActionPhase n) action = do
 execCatAction _ _ = liftErr WrongPhase
 
 execDaylightAction :: CatAction -> Update Game ()
-execDaylightAction CatBattle = liftErr NotImplemented
-execDaylightAction CatMarch = liftErr NotImplemented
-execDaylightAction CatRecruit = liftErr NotImplemented
+----------------------------------
+-- Battle
+----------------------------------
+execDaylightAction (CatBattle clearing defender) = do
+    Game.initiateBattle Marquis defender clearing
+----------------------------------
+-- March
+----------------------------------
+execDaylightAction (CatMarch fromIx toIx numWarriors) = do
+    Game.moveWarriors Marquis numWarriors fromIx toIx
+----------------------------------
+-- Recruit
+----------------------------------
+{-
+Recruit. Place one warrior at each recruiter. You may take this action only once per turn.
+-}
+execDaylightAction CatRecruit = do
+    -- Get all the clearings with a recruiter
+    recruiterClearings <- Game.getClearingsWhere (Clr.hasBuilding Recruiter)
+
+    forM_ recruiterClearings $ \clearing ->
+        Game.takeWarriorFromSupplyAndPlace Marquis clearing
+----------------------------------
+-- Build
+----------------------------------`
 execDaylightAction CatBuild = liftErr NotImplemented
 execDaylightAction CatOverwork = liftErr NotImplemented
+execDaylightAction CatFinishDaylightActions = do
+    -- Advance the phase
+    Game.setPhase $ FactionTurnPhase $ MarquisPhase CatDrawPhase
 execDaylightAction _ = liftErr WrongPhase

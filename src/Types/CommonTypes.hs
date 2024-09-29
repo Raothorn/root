@@ -12,36 +12,33 @@ import Types.Default
 ----------------------------------
 -- Types
 ----------------------------------
-data Suit = Mouse | Fox | Rabbit | Bird | NoSuit
+data Suit = Mouse | Fox | Rabbit | Bird
     deriving (Eq, Ord, Show)
 
 data Token
     = Wood
     | Keep
-    | NoToken
     deriving (Eq, Show)
 
 data Warrior
     = CatWarrior
     | BirdWarrior
-    | NoWarrior
     deriving (Eq, Show)
 
 data Building
     = Sawmill
     | Workshop
     | Recruiter
-    | NoBuilding
     deriving (Eq, Show)
 
 ----------------------------------
 -- Instances
 ----------------------------------
 instance Default Suit where
-    def = NoSuit
+    def = Mouse
 
 instance Default Token where
-    def = NoToken
+    def = Wood
 
 instance Default Building where
-    def = NoBuilding
+    def = Sawmill

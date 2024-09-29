@@ -7,8 +7,13 @@ data Error
     | IndexError
     | EmptyPhaseStack
     | EmptyTypeEncountered
+    | NoWarriorsInClearing
+    | NotEnoughWarriors
+    | NoPiecesInClearing
     | NotImplemented
     | WrongPhase
+    | RecruitAlreadyUsed
+    | WrongFaction
     | NoActionsRemaining
     | NotFactionTurn
     | FactionNotInPlay
@@ -19,4 +24,5 @@ data Error
     | EmptySupply
     | InvalidBuildingLocation
     | TraversalError
+    | CannotMoveDueToRule
     deriving (Show, Eq)

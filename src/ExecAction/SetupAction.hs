@@ -49,7 +49,7 @@ execSetupAction CatSetupPhase (CatSetupAction setup) = do
     -- Place a warrior in each clearing except the opposite one
     allClearings <- use Game.allClearingIxs
     let warriorClearings = allClearings \\ [oppositeCorner]
-    forM_ warriorClearings $ \clearing -> Game.placeWarrior Marquis clearing
+    forM_ warriorClearings $ \clearing -> Game.takeWarriorFromSupplyAndPlace Marquis clearing
 
     -- Place starting buildings
     let buildings =

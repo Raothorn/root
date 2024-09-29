@@ -17,7 +17,6 @@ import Control.Monad.Trans.Writer.Lazy
 import Data.Functor
 
 import Lens.Micro
-import Lens.Micro.Mtl
 
 import Test.Tasty
 import Test.Tasty.HUnit

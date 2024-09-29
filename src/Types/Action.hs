@@ -10,6 +10,9 @@ data Action
     = NoAction
     | SetupAction SetupAction
     | TurnAction TurnAction
+    -- Common actions
+    | AttackerRoll Int
+    | DefenderRoll Int
 
 data SetupAction
     = CatSetupAction CatSetup
@@ -18,3 +21,4 @@ data SetupAction
 data TurnAction
     = MarquisAction CatAction
     | EerieAction BirdAction
+

@@ -43,8 +43,8 @@ data CatPhase
     = CatPlaceWoodPhase
     | -- parameters: workshopsUsed :: [Suit]
       CatCraftPhase [Suit]
-    | -- parameters: actionsLeft :: Int
-      CatChooseActionPhase Int
+    | -- parameters: actionsLeft :: Int, recruited :: Bool
+      CatDaylightActionPhase Int Bool
     | CatDrawPhase
     | CatTurnEndedPhase
     deriving (Show)
@@ -52,11 +52,13 @@ data CatPhase
 data CatAction
     = CatPlaceWood
     | CatCraft (Index Card)
-    | CatBattle
-    | CatMarch
+    | CatFinishCrafting
+    | CatBattle (Index Clearing) Faction
+    | CatMarch (Index Clearing) (Index Clearing) Int
     | CatRecruit
     | CatBuild
     | CatOverwork
+    | CatFinishDaylightActions
     | CatDraw
 
 -- (Keep, Sawmil, Workshop, Recruiter)

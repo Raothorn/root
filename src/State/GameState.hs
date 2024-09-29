@@ -2,8 +2,11 @@ module State.GameState (
     -- Initialize
     initialize,
     -- Common Actions
-    placeWarrior,
+    takeWarriorFromSupplyAndPlace,
+    takeWarriorAndReturnToSupply,
     giveCard,
+    initiateBattle,
+    moveWarriors,
     -- Phase
     getPhase,
     setPhase,
@@ -20,6 +23,7 @@ module State.GameState (
 ) where
 
 import Control.Monad
+import Data.Maybe
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -27,7 +31,7 @@ import Lens.Micro.Mtl
 import qualified Root.Clearing as Clr
 import qualified Root.FactionCommon as Com
 import Root.Types
-import qualified Types.Board as Board
+import qualified Types.Phase as Phase
 import Types.Game
 import Util
 
@@ -46,17 +50,65 @@ initialize factions = do
 ----------------------------------
 -- Common Actions
 ----------------------------------
-placeWarrior :: Faction -> Index Clearing -> Update Game ()
-placeWarrior faction clearingIx = do
+takeWarriorFromSupplyAndPlace :: Faction -> Index Clearing -> Update Game ()
+takeWarriorFromSupplyAndPlace faction clearingIx = do
     warrior <- zoomT (factionCommon faction) Com.removeWarrior
 
     forM_ warrior $ \w ->
         zoom (clearingAt clearingIx) $ Clr.addWarrior w
 
+takeWarriorAndReturnToSupply :: Faction -> Index Clearing -> Update Game ()
+takeWarriorAndReturnToSupply faction clearingIx = do
+    warrior <- zoomT (clearingAt clearingIx) $ Clr.removeWarrior faction
+
+    forM_ warrior $ \w ->
+        zoomT (factionCommon faction) $ Com.addWarrior w
+
 giveCard :: Faction -> Index Card -> Update Game ()
 giveCard faction cardIx = do
     zoom (factionCommon faction) $ Com.addCard cardIx
 
+initiateBattle :: Faction -> Faction -> Index Clearing -> Update Game ()
+initiateBattle attacker defender clearingIx = do
+    -- Verify that the attacker has at least one warrior
+    -- and that the defender has at least one piece
+    (attackerWarriors, defenderPieces) <- zoomT (clearingAt clearingIx) $ do
+        attackerWarriors <- Clr.numFactionWarriors attacker
+        defenderPieces <- Clr.numFactionPieces defender
+        return (attackerWarriors, defenderPieces)
+
+    when (attackerWarriors <= 0) $ liftErr NoWarriorsInClearing
+    when (defenderPieces <= 0) $ liftErr NoPiecesInClearing
+
+    -- Push the battle phase onto the stack
+    let phase = Phase.newBattlePhase attacker defender clearingIx
+    pushPhase phase
+
+{-
+Rule 4.2: When you move, you may take any number of your warriors or your pawn 
+from one clearing and move them to one adjacent clearing.
+
+You Must Rule. To take a move, you must rule the origin clearing, destination clearing, or both. 
+No Movement Limits. A given piece can be moved any number of times per turn. If you are prompted 
+to take multiple moves, you may move the same or separate groups of warriors.
+-}
+moveWarriors :: Faction -> Int -> Index Clearing -> Index Clearing -> Update Game ()
+moveWarriors faction numWarriors fromIx toIx = do
+    -- Verify that the faction rules either the origin clearing or the destination clearing
+    fromRuler <- zoomT (clearingAt fromIx) Clr.getRulingFaction
+    toRuler <- zoomT (clearingAt toIx) Clr.getRulingFaction
+
+    unless (elem faction $ catMaybes [fromRuler, toRuler]) 
+        $ liftErr CannotMoveDueToRule
+
+    -- Remove the warriors from the origin clearing
+    warriors <- zoomT (clearingAt fromIx) $ 
+        Clr.removeWarriors faction numWarriors
+
+    -- Add the warriors to the destination clearing
+    forM_ warriors $ \w ->
+        zoom (clearingAt toIx) $ Clr.addWarrior w
+    
 ----------------------------------
 -- Phase
 ----------------------------------

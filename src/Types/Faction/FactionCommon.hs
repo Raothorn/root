@@ -11,11 +11,16 @@ module Types.Faction.FactionCommon (
     warriors,
     hand,
     victoryPoints,
+    -- Helpers
+    tokenFaction,
+    warriorFaction,
+    buildingFaction,
 ) where
 
 import Lens.Micro
 import Lens.Micro.TH
 
+import Types.CommonTypes
 import Types.Card (Card)
 import Types.Default
 import Types.Index
@@ -26,7 +31,7 @@ import Types.Index
 data Faction
     = Marquis
     | Eerie
-    deriving (Show)
+    deriving (Show, Eq)
 
 data FactionCommon = FactionCommon
     { _faction :: Faction
@@ -58,3 +63,19 @@ makeLenses ''FactionCommon
 ----------------------------------
 newFactionCommon :: Faction -> Int -> FactionCommon
 newFactionCommon fac numWarriors = def & faction .~ fac & warriors .~ numWarriors
+
+----------------------------------
+-- Helpers
+----------------------------------
+tokenFaction :: Token -> Faction
+tokenFaction Keep = Marquis
+tokenFaction Wood = Marquis
+
+warriorFaction :: Warrior -> Faction
+warriorFaction CatWarrior = Marquis
+warriorFaction BirdWarrior = Eerie
+
+buildingFaction :: Building -> Faction
+buildingFaction Sawmill = Marquis
+buildingFaction Workshop = Marquis
+buildingFaction Recruiter = Marquis

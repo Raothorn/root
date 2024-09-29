@@ -1,9 +1,12 @@
 module State.FactionCommonState (
     addCard,
+    addWarrior,
     craftCard,
     removeCard,
     removeWarrior,
 ) where
+
+import Control.Monad
 
 import Lens.Micro
 import Lens.Micro.Mtl
@@ -22,6 +25,11 @@ addCard cardIx = do
     fac <- use faction
     logEvent $ CardGained cardIx fac
 
+addWarrior :: Warrior -> Update FactionCommon ()
+addWarrior warrior = do
+    fac <- use faction
+    unless (warriorFaction warrior == fac) $ liftErr WrongFaction
+    warriors += 1
 {-
 Parameters:
     card :: Card - the card the faction is crafting

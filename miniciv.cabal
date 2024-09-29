@@ -27,7 +27,6 @@ library
   exposed-modules:
       ExecAction
       ExecAction.CatAction
-      ExecAction.CommonActions
       ExecAction.SetupAction
       Lib
       Lookup.BoardLookup
@@ -40,6 +39,7 @@ library
       Root.Game
       Root.Lookup
       Root.Marquis
+      Root.Phase
       Root.Types
       State.BoardState
       State.ClearingState
