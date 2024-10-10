@@ -180,12 +180,12 @@ execDaylightAction (CatBuild clearing building woodClearings) = do
     -- Score the victory points
     Game.factionCommon Marquis . Com.victoryPoints += buildingVps
 
--- Draw cards
--- replicateM_ draw $ do
--- Draw a card
--- cardIx <- Game.drawCard
--- Give the card to the Marquis
--- Game.giveCard Marquis cardIx
+    -- Draw the appropriate number of cards
+    replicateM_ draw $ do
+        -- Draw a card
+        cardIx <- Game.drawCard
+        -- Give the card to the Marquis
+        forM_ cardIx $ Game.giveCard Marquis
 
 ----------------------------------
 -- Overwork

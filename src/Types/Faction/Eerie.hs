@@ -52,6 +52,11 @@ data BirdAction
     | BirdDrawAndDiscard
     deriving (Show)
 
+data BirdLeader = Vulture | Eagle
+    deriving (Show)
+
+type BirdSetup = BirdLeader
+
 ----------------------------------
 -- Instances
 ----------------------------------

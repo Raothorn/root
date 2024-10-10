@@ -8,6 +8,7 @@ module Types.Game (
     phaseStack,
     board,
     playerFactions,
+    craftingDeck,
     marquis,
     eerie,
     factionsInPlay,
@@ -48,8 +49,8 @@ data Game = Game
     { _phaseStack :: [Phase]
     , _board :: Board
     , _playerFactions :: PlayerFactions
-    , -- Swappable lookup functions
-      _cardLookup :: Index Card -> Card
+    , _craftingDeck :: [Index Card]
+    , _cardLookup :: Index Card -> Card
     }
 
 data PlayerFactions = PlayerFactions
@@ -69,6 +70,7 @@ instance Default Game where
             { _phaseStack = []
             , _board = def
             , _playerFactions = def
+            , _craftingDeck = []
             , _cardLookup = lookupCard
             }
 

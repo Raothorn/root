@@ -4,6 +4,7 @@ module State.GameState (
     -- Common Actions
     takeWarriorFromSupplyAndPlace,
     takeWarriorAndReturnToSupply,
+    drawCard,
     giveCard,
     initiateBattle,
     moveWarriors,
@@ -64,6 +65,15 @@ takeWarriorAndReturnToSupply faction clearingIx = do
 
     forM_ warrior $ \w ->
         zoomT (factionCommon faction) $ Com.addWarrior w
+
+drawCard :: Update Game (Maybe (Index Card))
+drawCard = do
+    deck <- use craftingDeck
+    case deck of
+        [] -> return Nothing
+        (cardIx : rest) -> do
+            craftingDeck .= rest
+            return $ Just cardIx
 
 giveCard :: Faction -> Index Card -> Update Game ()
 giveCard faction cardIx = do

@@ -41,6 +41,7 @@ data Phase
 
 data FactionSetupPhase
     = CatSetupPhase
+    | BirdSetupPhase
     deriving (Show)
 
 data FactionTurnPhase
